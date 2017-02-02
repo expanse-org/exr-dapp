@@ -1,0 +1,83 @@
+/* global body padding */
+body {
+  padding-top:    20px;
+  padding-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-top:    50px;
+    padding-bottom: 50px;
+  }
+}
+
+
+/* global spacing overrides */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-top: 0;
+}
+hr {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.navbar-fixed-top,
+.navbar-static-top {
+  border-bottom: 0;
+}
+fieldset{border: 1px solid grey;}
+#depositVal{}
+.holder {
+    position: relative;
+}
+
+.holder label {
+    position: absolute;
+    right: 25px;
+    top: 7px;
+    width: 20px;
+	color: #ccc;
+}
+
+.holder input {
+    padding: 2px 50px 2px 2px;
+	margin:0 10px;
+}
+
+
+.growl-message {
+	font-weight:normal;
+}
+.alert-success{
+	color:#3c763d !important;
+	background-color:#dff0d8 !important;
+	border-color: #d6e9c6; !important;
+}
+.alert-warning{
+	color: #8a6d3b;
+	background-color: #fcf8e3;
+	border-color: #faebcc;
+}
+.alert-info{
+	color: #31708f;
+	background-color: #d9edf7;
+	border-color: #bce8f1;
+}
+.alert-error{
+	color:#a94442 !important;
+	background-color:#f2dede !important;
+	border-color:#ebccd1 !important;
+}
+pre {background-color:#222;color:#ccc;}
+.docpane{ white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word; 
+	word-break: keep-all;
+	
+	height:400px;
+	
+   overflow:auto;
+	 }

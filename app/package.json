@@ -1,0 +1,14 @@
+{
+  "name": "expanse-bond-dapp",
+  "version": "0.0.1",
+  "description": "Expanse Bond Technology Demonstration",
+  "main": "main.js",
+  "devDependencies": {
+    "electron-prebuilt": "^1.4.13"
+  },
+  "scripts": {
+    "start": "./node_modules/.bin/electron ."
+  },
+  "author": "",
+  "license": "ISC"
+}

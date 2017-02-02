@@ -1,0 +1,50 @@
+<div class="row">
+<div class="col-md-12">
+  <h4 class="list-group-header">Your Bonds</h4>
+  <ul class="list-group">
+    <li class="list-group-item slide" style="padding:20px;" href="#" ng-if="$ctrl.bonds == 'undefined' || !$ctrl.bonds.length">
+      <div class="row">
+         <div class="col-md-12 text-center"><strong>You have no bonds, please visit the accounts page to create one.</strong></div>
+      </div>
+     </li>
+    <li class="list-group-item slide" style="padding:20px;" href="#" ng-if="$ctrl.bonds != 'undefined' || $ctrl.bonds.length" ng-repeat="bond in $ctrl.bonds">
+      <div class="row">
+        <div class="col-md-6"><strong>Address:</strong> {{bond.address}}</div>
+        <div class="col-md-6"><strong>Active:</strong> {{bond.active}} </div>
+       
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>Bond Created:</strong> Block {{bond.created}}</div>
+        <div class="col-md-6"><strong>Last Redemption:</strong> {{bond.lastRedemption}}</div>
+       
+      </div>
+      <div class="row">
+        <div class="col-md-9"><strong>Bond Matures:</strong> Block {{bond.maturityBlock}}</div>
+        <div class="col-md-3" style="margin-top:-25px;">
+          <button id="redeemButton" name="redeemButton" ng-show="bond.lastRedemption<bond.maturityBlock" class="btn btn-primary" ng-click="$ctrl.redeem(bond.id, bond.address)" >Redeem</button>
+        </div>
+      </div>  <div align="center" class="m-t hr-divider"></div>
+      <div class="row m-t text-center align-items-center">
+     
+        <form name="form" class="form-horizontal m-t" novalidate>
+       
+          <h5 class="text-center">Transfer Bond Ownership</h5>
+          <div class="form-group m-t">
+          <div class="col-md-2"></div>
+            <div class="col-md-2  text-right" style="margin-top:5px;">
+              <label for="depositVal">New Address:</label>
+              </div>
+               <div class="col-md-3">
+                <input type="text" class="form-control" name="transferTo" ng-model="$ctrl.transferTo" id="transferTo" >
+              
+            </div>
+            <div class="col-md-2">
+              <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.transfer(bond.id, $ctrl.transferTo,bond.address)" >Transfer Bond</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </li>
+  </ul>
+</div>
+</div>

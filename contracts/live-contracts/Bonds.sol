@@ -1,8 +1,3 @@
-// TODO:
-// - make sure everything is stored in wei
-// - add admin role
-// - add bond limit restraints
-
 contract Bonds {
   // globals
   address   public  owner;
@@ -12,6 +7,7 @@ contract Bonds {
   uint      public  period;    // 31.45 days
 
   uint      public  nBonds; // bond index
+  uint      public  aBonds; // active bond index
   uint      public  totalBonds; // this number calculates total bonds * multipliers
   uint      public  limitBonds; // TODO: limit to 1000
   uint      public  maxCoupons;
@@ -19,7 +15,7 @@ contract Bonds {
   // events
   event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint indexed MaturityBlock);
   event Redemptions(address indexed User, uint indexed BondId, uint indexed Amount);
-  event Withdraws(uint indexed BondId, uint indexed Amount, address indexed User);
+  event Withdraws(uint Amount, address indexed User);
   event Transfers(address indexed TransferFrom, address indexed TransferTo);
   event Deposits(address indexed Sender, uint Amount);
   event BondMultipliers(bytes8 indexed Change, uint indexed BondId);
@@ -118,6 +114,7 @@ contract Bonds {
     //increment the bond index
     nBonds++;
     totalBonds+=_multiplier;
+    aBonds+=_multiplier;
 
     //set bondid from new index
     bondId = nBonds;
@@ -188,6 +185,7 @@ contract Bonds {
         //update the users balance
         uint amt = price*bonds[bondId].multiplier;
         users[msg.sender].balance+=amt;
+        aBonds-=bonds[bondId].multiplier;
         Redemptions(msg.sender, bondId, amt);
         return true;
       }
@@ -210,12 +208,14 @@ contract Bonds {
     if(!msg.sender.send(bal)){
       throw;
     }
+    Withdraws(bal, msg.sender);
     return true;
   }
 
   function transfer(uint _bid, address _to) mustBeOwner(_bid) returns(bool){
     bonds[_bid].owner = _to;
     users[_to].bonds.push(_bid);
+    Transfers(msg.sender, _to);
     return true;
   }
 

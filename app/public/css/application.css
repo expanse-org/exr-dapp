@@ -69,7 +69,7 @@ fieldset{border: 1px solid grey;}
 	background-color:#f2dede !important;
 	border-color:#ebccd1 !important;
 }
-pre {background-color:#222;color:#ccc;}
+pre, code {background-color:#222;color:#ccc; border: 1px solid #999;}
 .docpane{ white-space: pre-wrap;       /* Since CSS 2.1 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
@@ -81,3 +81,23 @@ pre {background-color:#222;color:#ccc;}
 	
    overflow:auto;
 	 }
+	 .codepane{ white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word; 
+	word-break: keep-all;
+	padding:5px 15px;
+
+   overflow:auto;
+	 }
+	 
+	 .no-pad  {
+    padding-right:0;
+    padding-left:0;
+}
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}

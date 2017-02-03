@@ -13,7 +13,7 @@ var app = angular.module('bondApp', [
     'dashhead',
     'dashboard',
 	'footer',
-	
+	'connect',
 	'accounts',
 	'accountList',
 	'deposit',
@@ -66,8 +66,10 @@ config(['$locationProvider', '$routeProvider', function($locationProvider, $rout
                 });
             }
         };
-}]).controller('bondAppCtrl', function ($scope,$localStorage) {
-//$localStorage.agreementConfirm=0;
- console.log($localStorage.agreementConfirm);
+}]).controller('bondAppCtrl', function ($scope,$localStorage,User) {
+//$localStorage.agreementConfirm=false;
  $scope.hasConfirmed=$localStorage.agreementConfirm;
+ if(!User.isConnected()) {
+	 $scope.connected=false;
+ } else $scope.connected=true;
 });

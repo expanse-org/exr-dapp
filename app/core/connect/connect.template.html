@@ -1,0 +1,19 @@
+<div class="hr-divider m-b-sm">
+  <h3 class="hr-divider-content hr-divider-heading">Connection to an Expanse Node Required</h3>
+</div>
+<div class="row m-t-md text-center">
+  <p>In order to interact with the Expanse network, this dApp must be connected to an Expanse node. Please enter the connection string for the node you wish to connect to below.</p>
+  <p>It is suggested practice to connect to a local node running on the same system as the dApp. Alternatively, you may connect to a remote node on an internal or external network.  Please ensure you research and understand the security best practices related to configuring and running a node or localized wallet.</p>
+  <p>Suggestion software for nodes are gexp, parity, or exp-lightwallet.</p>
+  <p>As an additional note, while not required to view your accounts and bonds, in order to deposit, withdraw the account must be unlocked. More information can be found </p>
+</div>
+<div class="row m-t-md text-center"> <code class="col-md-auto text-justify codepane">gexp --rpc --rpcaddr localhost</code> </div>
+<div class="row m-t-md text-center">
+  <fieldset class="col-md-4 col-md-offset-4">
+    <div class="m-t col-md-4 no-pad "><strong>Connection Path: </strong></div>
+    <div class="m-t col-md-8 no-pad"><input class="form-control" type="text" name="editConnectionString" id="editConnectionString" ng-show="$ctrl.editing"  ng-value="$localStorage.connectionString" /><span ng-hide="$ctrl.editing" ng-bind="$localStorage.connectionString">$connectionString</span> <a ng-hide="$ctrl.editing" ng-click="$ctrl.configure();">[Configure]</a> </div>
+    <div class="m-b col-md-12 m-t">
+      <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.connect()" >Check Connection</button>
+    </div>
+  </fieldset>
+</div>

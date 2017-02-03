@@ -3,9 +3,8 @@
 angular.module("userService", []).
 factory('User', function(growl, $localStorage) {
 	var web3 = new Web3();
-	web3.setProvider(new web3.providers.HttpProvider('http://localhost:9656'));
-	//var ipcPath = '\\\\.\\pipe\\gexp.ipc'; 
-	// var web3 = new Web3(new Web3.providers.IpcProvider(ipcPath));
+	if(!$localStorage.connectionString) $localStorage.connectionString="http://localhost:9656";
+	connect();
 	if($localStorage.lastblock<1) $localStorage.lastblock=500000;
 	console.log('Current Block: '+$localStorage.lastblock);
     var contract = web3.eth.contract(Contract.abi);
@@ -35,6 +34,21 @@ factory('User', function(growl, $localStorage) {
 			if(result.blockNumber>$localStorage.lastblock) $localStorage.lastblock=result.blockNumber;
 		}
 	});
+	function connect(){
+		console.log('Connecting to '+$localStorage.connectionString);
+		growl.info("Attempting to connect to expanse node at "+$localStorage.connectionString+".", {title:"Connection Attempt",ttl: -1}); 
+		web3.setProvider(new web3.providers.HttpProvider($localStorage.connectionString));			
+		//var ipcPath = '\\\\.\\pipe\\gexp.ipc'; 
+		// var web3 = new Web3(new Web3.providers.IpcProvider(ipcPath));
+		if(web3.isConnected()){
+			growl.success("Connected to node: "+$localStorage.connectionString+".", {title:"Connection Successful",ttl: -1}); 
+			return web3.isConnected();	
+			
+		} else {
+			growl.error("Could not connect to expanse node at "+$localStorage.connectionString+".", {title:"Connection Error",ttl: -1}); 
+			return false;
+		}
+	}
 	
 	function listBonds(account){
 		var accounts=web3.eth.accounts;
@@ -88,7 +102,7 @@ factory('User', function(growl, $localStorage) {
 		console.log('Withdrawing bond contract balance for account '+address);
 		var estGas= bondContract.withdraw.estimateGas({from: address});
 		estGas+=Math.ceil(estGas*0.1); //buffer gas
-		var tx= bondContract.withdraw.sendTransaction({from: address, gas:estGas}, function(err, result){ 
+		var tx= bondContract.withdraw.sendTransaction({from: address, gas:150000}, function(err, result){ 
 			if(err) {
 				console.log('Withdraw Error: '+err);
 				growl.error(err.message, {title:"Withdraw Error", ttl: -1}); 
@@ -104,8 +118,9 @@ factory('User', function(growl, $localStorage) {
 	function buyBond(multiplier, address){
 		var estGas= bondContract.buy.estimateGas(multiplier, {from: address});
 		estGas+=Math.ceil(estGas*0.1); //buffer gas
+		console.log("estgas"+estGas);
 		console.log('Bond purchase sent to blockchain. Multiplier: '+multiplier+' Account: '+address);
-		var tx=bondContract.buy.sendTransaction(multiplier, {from: address, gas:estGas}, function(err, result){ 
+		var tx=bondContract.buy.sendTransaction(multiplier, {from: address, gas:400000}, function(err, result){ 
 			if(err) {
 				console.log('Bond Purchase Error: '+err);
 				growl.error(err.message, {title:"Bond Purchase Error", ttl: -1}); 
@@ -124,7 +139,7 @@ factory('User', function(growl, $localStorage) {
 		console.log('Redeeming mature balance for bond id: '+bondid+' owned by account:'+address);
 		var estGas= bondContract.redeemCoupon.estimateGas(bondid, {from: address});
 		estGas+=Math.ceil(estGas*.1); //buffer gas
-		var tx=bondContract.redeemCoupon.sendTransaction(bondid, {from: address, gas:estGas}, function(err, result){ 
+		var tx=bondContract.redeemCoupon.sendTransaction(bondid, {from: address, gas:150000}, function(err, result){ 
 			if(err) {
 				console.log('Redeem Coupon Error: '+err);
 				growl.error(err.message, {title:"Bond Redemption Error", ttl: -1}); 
@@ -142,7 +157,7 @@ factory('User', function(growl, $localStorage) {
 		console.log("Transfering Bond ID: "+bondid+"(owner: "+address+") to account "+newAccount+".");
 		var estGas= bondContract.transfer.estimateGas(bondid, newAccount, {from: address});
 		estGas+=Math.ceil(estGas*0.1); //buffer gas
-		var tx=bondContract.transfer.sendTransaction(bondid, newAccount,{from: address, gas:estGas}, function(err, result){ 
+		var tx=bondContract.transfer.sendTransaction(bondid, newAccount,{from: address, gas:150000}, function(err, result){ 
 		if(err) {
 				console.log('Transfer Error: '+err);
 				growl.error(err.message, {title:"Bond Transfer Error", ttl: -1}); 
@@ -182,6 +197,11 @@ factory('User', function(growl, $localStorage) {
 		return unlocked;
 	}
 
+	function isConnected(){
+		return web3.isConnected();
+	}
+	
+
     return {
       getAccounts: getAccounts,
 	  getAccountBalance: getAccountBalance,
@@ -193,6 +213,8 @@ factory('User', function(growl, $localStorage) {
 	  listBonds: listBonds,
 	  fetchBond: fetchBond, 
 	  transfer: transfer,
-	  buyBond: buyBond
+	  buyBond: buyBond,
+	  isConnected: isConnected,
+	  connect: connect
     };
 });

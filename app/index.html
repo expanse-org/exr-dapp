@@ -24,7 +24,7 @@
 <body >
 <div growl></div>
 <div class="container">
-  <div class="row" ng-if="hasConfirmed==1"> 
+  <div class="row" ng-if="hasConfirmed==true && connected==true"> 
     <!-- SIDEBAR -->
     <sidebar></sidebar>
     <!-- CONTENT VIEWS -->
@@ -34,9 +34,14 @@
       <footer></footer>
     </div>
   </div>
-  <div class="row" ng-if="hasConfirmed!=1"> 
+  <div class="row" ng-if="hasConfirmed==false"> 
   	<dashhead title="Terms of Use"></dashhead>
   	<agreement></agreement>
+    <footer></footer>
+  </div>
+  <div class="row" ng-if="connected==false"> 
+  	<dashhead title="Connect to Expanse Node"></dashhead>
+  	<connect></connect>
     <footer></footer>
   </div>
 </div>
@@ -84,6 +89,8 @@
 <script src="core/about/about.component.js"></script> 
 <script src="core/bonds/bonds.module.js"></script> 
 <script src="core/bonds/bonds.component.js"></script> 
+<script src="core/connect/connect.module.js"></script> 
+<script src="core/connect/connect.component.js"></script> 
 <script src="core/deposit/deposit.module.js"></script> 
 <script src="core/deposit/deposit.component.js"></script> 
 <script src="core/bond-form/bond-form.module.js"></script> 

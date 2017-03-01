@@ -4,22 +4,22 @@
 </div>
 <div class="row m-t list-group">
   <form name="form" class="form-horizontal" novalidate>
-    <div class="form-group">
-      <label class="col-md-4 control-label" for="multiplier">Address:</label>
-      <div class="col-md-4" style="margin-top:7px;">
-       {{$ctrl.account}}
+    <div class="form-group row">
+      <label class="col-xs-3 col-sm-4 col-sm-offset-0 col-xs-offset-1 control-label" for="multiplier">Address:</label>
+      <div class="col-sm-4">
+       {{$ctrl.account.address}}
       </div>
     </div>
-    <div class="form-group">
-      <label class="col-md-4 control-label" for="multiplier">Multiplier:</label>
-      <div class="col-md-2" style="padding-right:0px;">
+    <div class="form-group row">
+      <label class="col-xs-4  col-sm-offset-0 col-xs-offset-1 control-label" for="multiplier">Multiplier:</label>
+      <div class="col-xs-2" style="padding-right:0px;">
        <input class="form-control" type="text" name="multiplier" id="multiplier" value="1" ng-model="$ctrl.multiplier" />
       </div>
-      <div class="col-md-2" style="margin:7px 0px;"> x 100 EXP</div>
+      <div class="col-xs-4" style="margin:7px 0px;"> x 100 EXP</div>
     </div>
     <!-- Button -->
     <div class="form-group m-t-md text-center">
-        <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.buyBond()" >Create Bond</button>
+        <button id="submit" name="submit" class="btn btn-primary"  ng-confirm-click="You are about to purchase an EBS Bond with account {{$ctrl.account.address}}." confirmed-click="$ctrl.buyBond()" >Create Bond</button>
     </div>
   </form>
 </div>

@@ -1,10 +1,14 @@
 'use strict';
-
-// Register `phoneList` component, along with its associated controller and template
 angular.
   module('sidebar').
   component('sidebar', {
     templateUrl: 'core/sidebar/sidebar.template.html',
-    controller: function DashboardController() {
+    controller: function ($scope, $timeout, bondService) {
+		var getBlock = function() {
+			$scope.currentBlock=bondService.currentBlock();
+			console.log("Block Poll:" +$scope.currentBlock);
+			$timeout(getBlock, 10000);
+		};
+		getBlock();
     }
   });

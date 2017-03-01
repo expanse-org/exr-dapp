@@ -1,8 +1,8 @@
 {
-  "name": "Borderless Crowdfunding DApp",
-  "description": "Crowdfund your ideas on the Expanse Blockchain",
-  "version": "0.0.1",
-  "homepage": "https://www.borderless.tech",
+  "name": "Expanse Bond Demonstration DApp",
+  "description": "Expanse Bond Demonstration DApp",
+  "version": "0.0.2",
+  "homepage": "https://www.expanse.tech/bonds",
   "license": "MIT",
   "private": true,
   "dependencies": {

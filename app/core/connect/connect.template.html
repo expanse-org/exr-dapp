@@ -2,17 +2,23 @@
   <h3 class="hr-divider-content hr-divider-heading">Connection to an Expanse Node Required</h3>
 </div>
 <div class="row m-t-md text-center">
-  <p>In order to interact with the Expanse network, this dApp must be connected to an Expanse node. Please enter the connection string for the node you wish to connect to below.</p>
-  <p>It is suggested practice to connect to a local node running on the same system as the dApp. Alternatively, you may connect to a remote node on an internal or external network.  Please ensure you research and understand the security best practices related to configuring and running a node or localized wallet.</p>
-  <p>Suggestion software for nodes are gexp, parity, or exp-lightwallet.</p>
-  <p>As an additional note, while not required to view your accounts and bonds, in order to deposit, withdraw the account must be unlocked. More information can be found </p>
+  <p>In order to interact with the Expanse network, this dApp must be connected to an Expanse node over it's RPC interface.  For new users it is suggested practice to connect to a local node running on the same system as the dApp. Alternatively, you may connect to a remote node on an internal or external network. The suggested software to run an expanse node is <a target="_blank" class="open-in-browser" href="https://github.com/expanse-org/go-expanse/releases">gexp</a> or <a target="_blank" class="open-in-browser" href="https://github.com/ethcore/parity/releases">parity</a>. Please be sure you research and understand the security best practices related to configuring and running a node or localized wallet in order to ensure the security of your wallet. It is suggested you only provide access to the RPC interface over localhost so only localized dApps can interface with it, although please employ caution as locally viewed websites and dApps may still potentially access it.</p>
+  <p> As an additional note, while not required to view your accounts and bonds, in order to deposit, withdraw, and transfer the account acting must be unlocked at the time of action. More information can be found in the <a target="_blank" class="open-in-browser" href="https://github.com/expanse-org/go-expanse/wiki/Managing-your-accounts">Managing Accounts</a> section of the users guide.</p>
 </div>
-<div class="row m-t-md text-center"> <code class="col-md-auto text-justify codepane">gexp --rpc --rpcaddr localhost</code> </div>
+<div class="row m-t text-center">
+  <div class="col-md-5 col-md-offset-2 col-sm-12">Example gexp configuration with local RPC interface:</div>
+  <div class="col-md-3 col-sm-12 no-pad"> <code class="text-justify codepane">gexp --rpc --rpcaddr localhost</code></div>
+</div>
 <div class="row m-t-md text-center">
-  <fieldset class="col-md-4 col-md-offset-4">
-    <div class="m-t col-md-4 no-pad "><strong>Connection Path: </strong></div>
-    <div class="m-t col-md-8 no-pad"><input class="form-control" type="text" name="editConnectionString" id="editConnectionString" ng-show="$ctrl.editing"  ng-value="$localStorage.connectionString" /><span ng-hide="$ctrl.editing" ng-bind="$localStorage.connectionString">$connectionString</span> <a ng-hide="$ctrl.editing" ng-click="$ctrl.configure();">[Configure]</a> </div>
-    <div class="m-b col-md-12 m-t">
+  <div class="col-md-12"> Please verify or enter the connection string for the node you wish to connect to below. </div>
+</div>
+<div class="row m-t-md text-center">
+  <fieldset class="col-md-6 col-xs-8 col-md-offset-3 col-xs-offset-2">
+    <div class="m-t col-xs-4  col-xs-offset-1 no-pad"><strong>Connection Path:</strong></div>
+    <div class="m-t col-xs-6 no-pad">
+      <input class="form-control" type="text" name="editConnectionString" id="editConnectionString" ng-show="$ctrl.editing"  ng-value="$localStorage.connectionString" />
+      <span ng-hide="$ctrl.editing" ng-bind="$localStorage.connectionString">$connectionString</span> <a ng-hide="$ctrl.editing" ng-click="$ctrl.configure();">[Configure]</a> </div>
+    <div class="m-t col-xs-12 m-b">
       <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.connect()" >Check Connection</button>
     </div>
   </fieldset>

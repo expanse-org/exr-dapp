@@ -31,7 +31,9 @@ fieldset{border: 1px solid grey;}
 .holder {
     position: relative;
 }
-
+.f11{
+ font-size:11px;	
+}
 .holder label {
     position: absolute;
     right: 25px;
@@ -93,11 +95,12 @@ pre, code {background-color:#222;color:#ccc; border: 1px solid #999;}
 	 }
 	 
 	 .no-pad  {
-    padding-right:0;
-    padding-left:0;
+    padding-right:0 !important;
+    padding-left:0  !important;
 }
 .vcenter {
     display: inline-block;
     vertical-align: middle;
     float: none;
 }
+.pt5{padding-top:5px;}

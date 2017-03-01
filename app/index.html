@@ -21,7 +21,7 @@
 <link href="bower_components/angular-growl-v2/build/angular-growl.css" rel="stylesheet">
 </head>
 
-<body >
+<body>
 <div growl></div>
 <div class="container">
   <div class="row" ng-if="hasConfirmed==true && connected==true"> 
@@ -46,7 +46,8 @@
   </div>
 </div>
 
-<!-- Template public JS--> 
+<!-- Elctron Compat--> 
+
 
 <script src="public/js/jquery.min.js"></script>  
 
@@ -54,22 +55,23 @@
 <script src="bower_components/angular/angular.js"></script> 
 <script src="bower_components/angular-route/angular-route.js"></script> 
 <script src="bower_components/angular-animate/angular-animate.min.js"></script> 
-<script src="bower_components/chart.js/dist/Chart.min.js"></script> 
+<script src="bower_components/chart.js/dist/Chart.min.js"></script>
 <script src="bower_components/angular-chart.js/dist/angular-chart.min.js"></script> 
 <script src="bower_components/angular-growl-v2/build/angular-growl.min.js"></script> 
+<!-- localStorage -->
 <script src="bower_components/ngstorage/ngStorage.js"></script> 
+<!-- Expanse web3 -->
 <script src="bower_components/web3/dist/web3.min.js"></script>
-<!-- Expanse web3 --> 
- 
+<!-- GUI Libs/Components -->
 <script src="public/js/tablesorter.min.js"></script> 
 <script src="public/js/toolkit.js"></script> 
+<!-- Contract Interface -->
 <script src="public/js/contract.js"></script> 
-
 <!-- The App --> 
 <script src="app.js"></script> 
 <!-- The Sevices --> 
-<script src="services/user.service.js"></script> 
 <script src="services/bond.service.js"></script> 
+
 <!-- The Components --> 
 <script src="core/sidebar/sidebar.module.js"></script> 
 <script src="core/sidebar/sidebar.component.js"></script> 
@@ -94,12 +96,10 @@
 <script src="core/deposit/deposit.module.js"></script> 
 <script src="core/deposit/deposit.component.js"></script> 
 <script src="core/bond-form/bond-form.module.js"></script> 
-<script src="core/bond-form/bond-form.component.js"></script> 
-<script src="core/balance/balance.module.js"></script> 
-<script src="core/balance/balance.component.js"></script> 
-<script src="core/manage-bond/nominate-form.module.js"></script> 
-<script src="core/manage-bond/nominate-form.component.js"></script> 
+<script src="core/bond-form/bond-form.component.js"></script>  
 <script src="core/footer/footer.module.js"></script> 
 <script src="core/footer/footer.component.js"></script>
+<!-- Electron Compat -->
+
 </body>
 </html>

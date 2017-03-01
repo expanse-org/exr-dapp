@@ -6,7 +6,7 @@ var app = angular.module('bondApp', [
     'ngRoute',
 	'angular-growl',
 	'ngStorage',
-    'userService',
+    'bondService',
     'bondService',
 	'agreement',
     'sidebar',
@@ -17,9 +17,7 @@ var app = angular.module('bondApp', [
 	'accounts',
 	'accountList',
 	'deposit',
-	 
 	'about',
-	
     'bonds',
 	'bondList',
     'bondForm'
@@ -66,10 +64,12 @@ config(['$locationProvider', '$routeProvider', function($locationProvider, $rout
                 });
             }
         };
-}]).controller('bondAppCtrl', function ($scope,$localStorage,User) {
+}]).controller('bondAppCtrl', function ($scope,$localStorage,bondService) {
 //$localStorage.agreementConfirm=false;
  $scope.hasConfirmed=$localStorage.agreementConfirm;
- if(!User.isConnected()) {
+ if(!bondService.isConnected()) {
 	 $scope.connected=false;
  } else $scope.connected=true;
-});
+}).config(['growlProvider', function(growlProvider) {
+  growlProvider.onlyUniqueMessages(false);
+}]);;

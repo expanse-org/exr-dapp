@@ -2,15 +2,14 @@
 angular.
 module('connect').
 component('connect', {
-	controller: function(User, Bond, $scope, $localStorage,$window, growl) {
+	controller: function(bondService, $scope, $localStorage,$window) {
 		$scope.$localStorage = $localStorage;
-		//growl.error("Could not connect to expanse node at "+$localStorage.connectionString+".", {title:"Connection Error",ttl: -1}); 
 		this.configure = function(){
 			this.editing=true;	
 		}
 		this.connect = function() {
 			console.log('Checking Connection');
-			if(User.connect()){
+			if(bondService.connect()){
 			  $window.location.reload();
 			}
 		};

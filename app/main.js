@@ -6,7 +6,7 @@ const shell = require('electron').shell;
 //var BrowserWindow = require('browser-window');
 //var NativeImage = require('native-image');
 var mainWindow = null;
-require('electron-debug')({showDevTools: false});
+require('electron-debug')({showDevTools: false, enabled:true});
 app.on('window-all-closed', function() {
   if (process.platform != 'darwin') {
     app.quit();

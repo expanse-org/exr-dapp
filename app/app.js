@@ -65,7 +65,7 @@ config(['$locationProvider', '$routeProvider', function($locationProvider, $rout
             }
         };
 }]).controller('bondAppCtrl', function ($scope,$localStorage,bondService) {
-//$localStorage.agreementConfirm=false;
+if(!$localStorage.agreementConfirm) $localStorage.agreementConfirm=false;
  $scope.hasConfirmed=$localStorage.agreementConfirm;
  if(!bondService.isConnected()) {
 	 $scope.connected=false;

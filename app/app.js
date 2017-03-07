@@ -7,7 +7,6 @@ var app = angular.module('bondApp', [
 	'angular-growl',
 	'ngStorage',
     'bondService',
-    'bondService',
 	'agreement',
     'sidebar',
     'dashhead',

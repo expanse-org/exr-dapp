@@ -1,6 +1,10 @@
-contract Bonds {
+pragma solidity ^0.4.9;
+
+contract Bond {
   // globals
   address   public  owner;
+  address   public  lastContract;
+
   uint      public  coupon;    // 1 Expanse
   uint      public  price;     // 100 Expanse
   uint      public  maturity;  // 1 yr in blocks
@@ -12,6 +16,9 @@ contract Bonds {
   uint      public  limitBonds; // TODO: limit to 1000
   uint      public  maxCoupons;
 
+  uint      public  nUBP; // bond_id - create a loop that increases by 10 each time
+  uint      public  nUserUpdateProgress; // number of users who have upgraded
+
   // events
   event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint indexed MaturityBlock);
   event Redemptions(address indexed User, uint indexed BondId, uint indexed Amount);
@@ -19,16 +26,9 @@ contract Bonds {
   event Transfers(address indexed TransferFrom, address indexed TransferTo);
   event Deposits(address indexed Sender, uint Amount);
   event BondMultipliers(bytes8 indexed Change, uint indexed BondId);
+  event UserUpgrade(address indexed User, address indexed OldContract, address indexed NewContract, bool Success);
 
-  modifier mustBeOwner(uint bondId){
-      if(bonds[bondId].owner != msg.sender) {
-        throw;
-      }else{
-        _
-      }
-  }
-
-  struct Bond {
+  struct sBond {
     bool active;
     address owner;
     // if someone spends 10k they would get a bond with a 100x multiplier
@@ -57,17 +57,127 @@ contract Bonds {
   }
 
   mapping(address=>User) public users;
-  mapping(uint=>Bond) public bonds;
+  mapping(uint=>sBond) public bonds;
 
-  function Bonds(uint _limit, uint _maturity, uint _period, uint _price, uint _coupon, uint _max){
+  modifier mustBeOwner(uint bondId){
+      if(bonds[bondId].owner != msg.sender) {
+        throw;
+      }else{
+        _;
+      }
+  }
+
+  //function Bond(address _lastContract, address _storageContract){}
+  //default function break;
+  function(){}
+  function deposit(){}
+  // users use this function to buy bonds
+  function buy(uint _multiplier) returns(uint multiplier, uint remainder, uint bondId){}
+  // users use this function to redeem their coupons
+  function redeemCoupon(uint _bid) mustBeOwner(_bid) returns(bool, bool, uint){}
+  // redeem the bond once its past its maturity date
+  function redeemBond(uint bondId) mustBeOwner(bondId) returns(bool){}
+  // the withdraw function withdraws a users entire balance.
+  function withdraw() returns(bool){}
+  function transfer(uint _bid, address _to) mustBeOwner(_bid) returns(bool){}
+  function getBalance(address _user) returns(uint balance){}
+  function getBond(uint _bid) returns(bool active, address owner, uint multiplier, uint maturityBlock, uint lastRedemption){}
+  function empty(){}
+  function changeOwner(address newOwner) {}
+  function increaseLimit(uint _limit){}
+  function getUser(address _addr) returns(bool exists, uint balance, uint[] bonds){}
+  function getBondHistoryLength(uint _bid) returns(uint length){}
+  function getBondHistory(uint _bid, uint _index) returns(uint block, uint amount){}
+  function upgradeUser() returns(bool){}
+  function upgradeBonds(uint _nSteps) returns(bool){}
+
+}
+
+
+contract Bonds {
+
+    // globals
+  address   public  owner;
+  address   public  lastContract;
+
+  uint      public  coupon;    // 1 Expanse
+  uint      public  price;     // 100 Expanse
+  uint      public  maturity;  // 1 yr in blocks
+  uint      public  period;    // 31.45 days
+
+  uint      public  nBonds; // bond index
+  uint      public  aBonds; // active bond index
+  uint      public  totalBonds; // this number calculates total bonds * multipliers
+  uint      public  limitBonds; // TODO: limit to 1000
+  uint      public  maxCoupons;
+
+  uint      public  nUBP; // bond_id - create a loop that increases by 10 each time
+  uint      public  nUserUpdateProgress; // number of users who have upgraded
+
+  // events
+  event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint indexed MaturityBlock);
+  event Redemptions(address indexed User, uint indexed BondId, uint indexed Amount);
+  event Withdraws(uint Amount, address indexed User);
+  event Transfers(address indexed TransferFrom, address indexed TransferTo);
+  event Deposits(address indexed Sender, uint Amount);
+  event BondMultipliers(bytes8 indexed Change, uint indexed BondId);
+  event UserUpgrade(address indexed User, address indexed OldContract, address indexed NewContract, bool Success);
+
+  struct sBond {
+    bool active;
+    address owner;
+    // if someone spends 10k they would get a bond with a 100x multiplier
+    uint multiplier;
+    // the block that allows the person to wd the full amount of this bond
+    uint maturityBlock;
+    // the last time a coupon was recieved
+    uint lastRedemption;
+    // the last time the multiplier has been edited
+    uint lastMultiplierChange;
+    uint couponsRemaining;
+    // a history of each redemption
+    // block height and amount
+    History[] redemptionHistory;
+  }
+
+  struct User {
+      bool exists;
+      uint balance;
+      uint[] bonds;
+      bool upgraded;
+  }
+
+  struct History {
+    uint block;
+    uint amount;
+  }
+
+  mapping(address=>User) public users;
+  mapping(uint=>sBond) public bonds;
+
+  modifier mustBeOwner(uint bondId){
+      if(bonds[bondId].owner != msg.sender) {
+        throw;
+      }else{
+        _;
+      }
+  }
+
+//0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457
+  function Bonds(address _lastContract){
     owner = msg.sender;
-    // limits could be auto-set by the balance
-    limitBonds = _limit;        //1000;
-    maturity   = _maturity;     //131400;
-    period     = _period;       //43800;
-    price      = _price;  //100 ether;
-    coupon     = _coupon; //1 ether;
-    maxCoupons = _max;
+    //get all these variables from the last contract
+
+    limitBonds = Bond(_lastContract).limitBonds();        //1000;
+    maturity   = Bond(_lastContract).maturity();     //131400;
+    period     = Bond(_lastContract).period();       //43800;
+    price      = Bond(_lastContract).price();        //100 ether;
+    coupon     = Bond(_lastContract).coupon();       //1 ether;
+    maxCoupons = Bond(_lastContract).maxCoupons();
+    lastContract = _lastContract;
+
+    //add this contract to Storage Admins
+
   }
 
   //default function break;
@@ -157,11 +267,11 @@ contract Bonds {
       uint timePassedCorrected = timePassed - remainder;
       uint periods = timePassedCorrected / period;
 
-      uint remaining = maxCoupons - bonds[_bid].couponsRemaining;
-
-      if(periods>remaining){
-        periods=remaining;
+      if(periods>bonds[_bid].couponsRemaining){
+        periods=bonds[_bid].couponsRemaining;
       }
+
+      bonds[_bid].couponsRemaining-=periods;
 
       uint amt = coupon*bonds[_bid].multiplier*periods;
 
@@ -231,9 +341,11 @@ contract Bonds {
     lastRedemption = bonds[_bid].lastRedemption;
   }
 
-  function empty(){
-    uint256 balance = this.balance;
-    if(!owner.send(balance)) throw;
+  function empty() {
+    if(owner == msg.sender){
+      uint256 balance = this.balance;
+      if(!owner.send(balance)) throw;
+    }
   }
 
   function changeOwner(address newOwner) {
@@ -263,4 +375,55 @@ contract Bonds {
     block = bonds[_bid].redemptionHistory[_index].block;
     amount = bonds[_bid].redemptionHistory[_index].amount;
   }
+
+  function upgradeUser() returns(bool){
+    //check and see if the user already upgrade
+    //get old users balance
+    //set balance of new user
+    //update user "upgraded status"
+
+    var(a, b, c) = Bond(lastContract).getUser(msg.sender);
+
+    users[msg.sender].exists = a;
+    users[msg.sender].balance = b;
+
+    uint n;
+
+    //users[msg.sender].bonds = c;
+
+    users[msg.sender].upgraded = true;
+
+    UserUpgrade(msg.sender, lastContract, this, true);
+    return true;
+  }
+
+  function upgradeBonds(uint _nSteps) returns(bool){
+    if(owner != msg.sender){throw;}
+    //start bond id = nUBP
+    //end bond id nUBP + 10
+
+    uint nStop = nUBP + _nSteps;
+
+    while(nUBP < nStop && nUBP <= nBonds){
+      //get old bond data
+      //Bond(lastContract).bonds[nUBP].
+      //set in new mapping
+      var(a,b,c,d,e,f,g) = Bond(lastContract).bonds(nUBP);
+
+      bonds[nUBP].active = a;
+      bonds[nUBP].owner = b;
+      bonds[nUBP].multiplier = c;
+      bonds[nUBP].maturityBlock = d;
+      bonds[nUBP].lastRedemption = e;
+      bonds[nUBP].lastMultiplierChange = f;
+      bonds[nUBP].couponsRemaining = g;
+      //bonds[nUBP].redemptionHistory = Last.bonds[nUBP].redemptionHistory;
+
+      nUBP++;
+    }
+
+    return true;
+
+  }
+
 }

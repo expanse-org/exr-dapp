@@ -1,20 +1,11 @@
 var abi = require('Bonds.abi.js');
 var bytecode = require('Bonds.bytecode.js');
 
- var _limit = /* var of type uint256 here */ ;
- var _maturity = /* var of type uint256 here */ ;
- var _period = /* var of type uint256 here */ ;
- var _price = /* var of type uint256 here */ ;
- var _coupon = /* var of type uint256 here */ ;
- var _max = /* var of type uint256 here */ ;
+ var _lastContract = '0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457';
+
  var bondsContract = web3.exp.contract(abi);
  var bonds = bondsContract.new(
-    _limit,
-    _maturity,
-    _period,
-    _price,
-    _coupon,
-    _max,
+    _lastContract,
     {
       from: web3.exp.accounts[0],
       data: '0x'+bytecode,

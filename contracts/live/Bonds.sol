@@ -278,7 +278,6 @@ contract Bonds {
       bonds[_bid].lastRedemption = block.number;
       bonds[_bid].redemptionHistory.push(History(block.number, amt));
 
-      bonds[_bid].couponsRemaining+=periods;
       users[msg.sender].balance+=amt;
       Redemptions(msg.sender, _bid, amt);
     // try to redeem the bond automatically

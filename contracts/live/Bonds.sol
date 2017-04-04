@@ -1,5 +1,10 @@
 pragma solidity ^0.4.9;
 
+// timestamp conversion
+// 90 days = 7776000
+// get blocks remaining till maturity, multiple the remaining blocks by 60
+
+
 contract Bond {
   // globals
   address   public  owner;
@@ -96,6 +101,9 @@ contract Bond {
 
 contract Bonds {
 
+  uint ninetyDays = 7776000;
+  uint thirtyDays =  2592000;
+
     // globals
   address   public  owner;
   address   public  lastContract;
@@ -129,11 +137,10 @@ contract Bonds {
     // if someone spends 10k they would get a bond with a 100x multiplier
     uint multiplier;
     // the block that allows the person to wd the full amount of this bond
-    uint maturityBlock;
+    uint maturityTime;
     // the last time a coupon was recieved
-    uint lastRedemption;
-    // the last time the multiplier has been edited
-    uint lastMultiplierChange;
+    uint lastRedemption; // block number
+    uint nextRedemption; // timestamp
     uint couponsRemaining;
     // a history of each redemption
     // block height and amount
@@ -169,8 +176,8 @@ contract Bonds {
     //get all these variables from the last contract
 
     limitBonds = Bond(_lastContract).limitBonds();        //1000;
-    maturity   = Bond(_lastContract).maturity();     //131400;
-    period     = Bond(_lastContract).period();       //43800;
+    maturity   = Bond(_lastContract).maturity()*60;     //131400 convert to timestamp;
+    period     = Bond(_lastContract).period()*60;       //43800;
     price      = Bond(_lastContract).price();        //100 ether;
     coupon     = Bond(_lastContract).coupon();       //1 ether;
     maxCoupons = Bond(_lastContract).maxCoupons();
@@ -233,11 +240,10 @@ contract Bonds {
     bonds[bondId].active = true;
     bonds[bondId].owner = msg.sender;
     bonds[bondId].multiplier = _multiplier;
-    bonds[bondId].maturityBlock = block.number + maturity;
-    bonds[bondId].lastRedemption = block.number;
-    bonds[bondId].lastMultiplierChange = block.number;
+    bonds[bondId].maturityTime = block.timestamp + maturity;
+    bonds[bondId].lastRedemption = block.timestamp;
+    bonds[bondId].nextRedemption = block.timestamp + period;
     bonds[bondId].couponsRemaining = maxCoupons;
-    bonds[bondId].redemptionHistory.push(History(block.number, 0));
 
     // update the users balance with the remainder
     users[msg.sender].bonds.push(bondId);
@@ -257,12 +263,12 @@ contract Bonds {
     if(bonds[_bid].active != true){
       throw;
     }
-      uint timePassed = block.number - bonds[_bid].lastRedemption;
 
-      if(timePassed < period){
+      if(bonds[_bid].nextRedemption > block.timestamp){
         throw;
       }
 
+      uint timePassed = block.timestamp - bonds[_bid].lastRedemption;
       uint remainder = timePassed % period;
       uint timePassedCorrected = timePassed - remainder;
       uint periods = timePassedCorrected / period;
@@ -275,10 +281,9 @@ contract Bonds {
 
       uint amt = coupon*bonds[_bid].multiplier*periods;
 
-      bonds[_bid].lastRedemption = block.number;
-      bonds[_bid].redemptionHistory.push(History(block.number, amt));
+      bonds[_bid].lastRedemption = block.timestamp;
+      bonds[_bid].redemptionHistory.push(History(block.timestamp, amt));
 
-      bonds[_bid].couponsRemaining+=periods;
       users[msg.sender].balance+=amt;
       Redemptions(msg.sender, _bid, amt);
     // try to redeem the bond automatically
@@ -289,7 +294,7 @@ contract Bonds {
   function redeemBond(uint bondId) mustBeOwner(bondId) returns(bool){
     if(bonds[bondId].active == true){
       //check maturity date
-      if(block.number >= bonds[bondId].maturityBlock){
+      if(block.timestamp <= bonds[bondId].maturityBlock){
         //kill interest earning
         bonds[bondId].active = false;
         //update the users balance
@@ -324,6 +329,7 @@ contract Bonds {
 
   function transfer(uint _bid, address _to) mustBeOwner(_bid) returns(bool){
     bonds[_bid].owner = _to;
+    users[msg.sender].bonds.delete(_bid);
     users[_to].bonds.push(_bid);
     Transfers(msg.sender, _to);
     return true;
@@ -333,12 +339,13 @@ contract Bonds {
     balance = users[_user].balance;
   }
 
-  function getBond(uint _bid) returns(bool active, address owner, uint multiplier, uint maturityBlock, uint lastRedemption){
+  function getBond(uint _bid) returns(bool active, address owner, uint multiplier, uint maturityTime, uint lastRedemption, uint nextRedemption){
     active = bonds[_bid].active;
     owner = bonds[_bid].owner;
     multiplier = bonds[_bid].multiplier;
-    maturityBlock = bonds[_bid].maturityBlock;
+    maturityTime = bonds[_bid].maturityTime;
     lastRedemption = bonds[_bid].lastRedemption;
+    nextRedemption = bonds[_bid].nextRedemption;
   }
 
   function empty() {
@@ -413,9 +420,14 @@ contract Bonds {
       bonds[nUBP].active = a;
       bonds[nUBP].owner = b;
       bonds[nUBP].multiplier = c;
-      bonds[nUBP].maturityBlock = d;
-      bonds[nUBP].lastRedemption = e;
-      bonds[nUBP].lastMultiplierChange = f;
+
+      //((maturityBlock - this.block.number) * 60 ) + this.block.timestamp
+      bonds[nUBP].maturityTime = ((d-block.number)*60)+block.timestamp;
+
+      //this.block.time - ((this.block.number - lastRedemptionBlock) * 60)
+      bonds[nUBP].lastRedemption = block.timestamp - ((block.number - e)*60);
+      bonds[nUBP].nextRedemption = bonds[nUBP].lastRedemption + period;
+
       bonds[nUBP].couponsRemaining = g;
       //bonds[nUBP].redemptionHistory = Last.bonds[nUBP].redemptionHistory;
 

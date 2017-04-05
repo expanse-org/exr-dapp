@@ -42,8 +42,6 @@ contract Bond {
     uint maturityBlock;
     // the last time a coupon was recieved
     uint lastRedemption;
-    // the last time the multiplier has been edited
-    uint lastMultiplierChange;
     uint couponsRemaining;
     // a history of each redemption
     // block height and amount

@@ -10,18 +10,14 @@
     <li class="list-group-item slide" style="padding:20px;" href="#" ng-if="$ctrl.bonds != 'undefined' || $ctrl.bonds.length" ng-repeat="bond in $ctrl.bonds">
       <div class="row">
         <div class="col-md-6"><strong>Address:</strong> {{bond.address}}</div>
-        <div class="col-md-6"><strong>Active:</strong> {{bond.active}} </div>
-       
-      </div>
-      <div class="row">
-        <div class="col-md-6"><strong>Bond Created:</strong> Block {{bond.created}}</div>
-        <div class="col-md-6"><strong>Last Redemption:</strong> {{bond.lastRedemption}}</div>
-       
-      </div>
-      <div class="row">
-        <div class="col-md-9"><strong>Bond Matures:</strong> Block {{bond.maturityBlock}}</div>
-        <div class="col-md-3" style="margin-top:-25px;">
-          <button id="redeemButton" name="redeemButton" ng-show="bond.lastRedemption<bond.maturityBlock" class="btn btn-primary" ng-click="$ctrl.redeem(bond.id, bond.address)" >Redeem</button>
+        <div class="col-md-3 col-sm-6"><strong>Active:</strong> {{bond.active}} </div>
+        <div class="col-md-3 col-sm-6"><strong>Multiplier:</strong> {{bond.multiplier}} </div>
+        <div class="col-md-6"><strong>Bond Created:</strong> Block #{{bond.created}} ({{$ctrl.blockToTime(bond.created)}} Ago)</div>
+        <div class="col-md-6 col-sm-6"><strong>Last Redemption:</strong> {{bond.lastRedemption>bond.created ? 'Block #'+bond.lastRedemption+' ('+$ctrl.blockToTime(bond.lastRedemption)+' Ago)' : 'Never'}} </div>
+        <div class="col-md-6 col-sm-6"><strong>Bond Redeemable:</strong> Block #{{bond.maturityBlock}} (~{{$ctrl.blockToTime(bond.maturityBlock)}})</div>
+        <div class="col-md-6 col-sm-6"><strong>Bond Fully Mature:</strong> Block #{{bond.maturityBlock+131400}} (~{{$ctrl.blockToTime(bond.maturityBlock+131400)}})</div>
+        <div class="col-md-12 col-sm-12 text-center m-t" ng-show="$ctrl.currentBlock>(bond.created+43800)">
+          <button id="redeemButton" name="redeemButton"  class="btn btn-primary"  ng-confirm-click="You are about to redeem a bond, if this bond has reached maturity range, it will be redeemed and deactivated. If it is prior to maturity, any available interest will be collected." confirmed-click="$ctrl.redeem(bond.id, bond.address)" >{{ $ctrl.currentBlock>bond.maturityBlock ? 'Redeem' : 'Collect Coupon(s)'}}</button>
         </div>
       </div>  <div align="center" class="m-t hr-divider"></div>
       <div class="row m-t text-center align-items-center">
@@ -30,16 +26,16 @@
        
           <h5 class="text-center">Transfer Bond Ownership</h5>
           <div class="form-group m-t">
-          <div class="col-md-2"></div>
-            <div class="col-md-2  text-right" style="margin-top:5px;">
-              <label for="depositVal">New Address:</label>
+   
+            <div class="col-xs-3  text-right" style="margin-top:5px;">
+             <label>New Address:</label>
               </div>
-               <div class="col-md-3">
+               <div class="col-xs-6">
                 <input type="text" class="form-control" name="transferTo" ng-model="$ctrl.transferTo" id="transferTo" >
               
             </div>
-            <div class="col-md-2">
-              <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.transfer(bond.id, $ctrl.transferTo,bond.address)" >Transfer Bond</button>
+            <div class="col-sm-3 text-left">
+              <button id="submit" name="submit" class="btn btn-primary"  ng-confirm-click="You are about to transfer an EBS Bond." confirmed-click="$ctrl.transfer(bond.id, $ctrl.transferTo,bond.address)" >Transfer Bond</button>
             </div>
           </div>
         </form>

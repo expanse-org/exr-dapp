@@ -3,10 +3,10 @@
     <div class="list-group">
         <h4 class="list-group-header">Your Accounts</h4>
         <div class="list-group-item slide" href="#" ng-if="$ctrl.accounts != 'undefined'" ng-repeat="account in $ctrl.accounts">
-            <div class="row"><div class="col-md-12 text-center"><strong>Address:</strong> {{account.address}} [{{account.unlocked ? "Unlocked" : "Locked"}}]</div></div>
+            <div class="row"><div class="col-sm-12 text-center"><strong>Address:</strong> {{account.address}} [{{account.unlocked ? "Unlocked" : "Locked"}}]</div></div>
             <div class="row">
-                <div class="col-md-6 text-center"><strong>Account Balance:</strong> {{account.balance}} EXP</div>
-                <div class="col-md-6 text-center"><strong>Bond Balance:</strong> {{account.bondBalance}} EXP</div>
+                <div class="col-md-6 col-sm-12 text-center"><strong>Account Balance:</strong> {{account.balance}} EXP</div>
+                <div class="col-md-6 col-sm-12 text-center"><strong>Bond Balance:</strong> {{account.bondBalance}} EXP</div>
             </div>
 			<deposit ng-show="account.balance>0" account="account"></deposit>
         </div>

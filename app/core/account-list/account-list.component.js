@@ -4,7 +4,7 @@ angular.
   module('accountList').
   component('accountList', {
     templateUrl: 'core/account-list/account-list.template.html',
-    controller: function (User) {
-	 	this.accounts = User.getAccounts();		
+    controller: function (bondService) {
+	 	this.accounts = bondService.getAccounts();		
 	 }
   });

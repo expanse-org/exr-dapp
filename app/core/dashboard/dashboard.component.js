@@ -2,9 +2,9 @@
 angular.
 module('dashboard').
 component('dashboard', {
-    controller: function(User, Bond, $scope, $localStorage) {
-		this.accounts=User.getAccounts().length;
-		this.bonds=User.listBonds().length;
+    controller: function(bondService, $scope, $localStorage) {
+		this.accounts=bondService.getAccounts().length;
+		this.bonds=bondService.listBonds().length;
 		this.transfers=1;
     },
     templateUrl: 'core/dashboard/dashboard.template.html'

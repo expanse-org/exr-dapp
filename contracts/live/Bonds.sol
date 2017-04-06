@@ -249,7 +249,7 @@ contract Bonds {
     users[msg.sender].bonds.push(bondId);
 
     // trigger event so the world can see how awesome you are
-    Buys(msg.sender, bondId, bonds[bondId].multiplier, bonds[bondId].maturityBlock);
+    Buys(msg.sender, bondId, bonds[bondId].multiplier, bonds[bondId].maturityTime);
   }
 
   // users use this function to redeem their coupons
@@ -294,7 +294,7 @@ contract Bonds {
   function redeemBond(uint bondId) mustBeOwner(bondId) returns(bool){
     if(bonds[bondId].active == true){
       //check maturity date
-      if(block.timestamp <= bonds[bondId].maturityBlock){
+      if(block.timestamp <= bonds[bondId].maturityTime){
         //kill interest earning
         bonds[bondId].active = false;
         //update the users balance
@@ -329,7 +329,7 @@ contract Bonds {
 
   function transfer(uint _bid, address _to) mustBeOwner(_bid) returns(bool){
     bonds[_bid].owner = _to;
-    users[msg.sender].bonds.delete(_bid);
+    delete users[msg.sender].bonds[_bid];
     users[_to].bonds.push(_bid);
     Transfers(msg.sender, _to);
     return true;

@@ -101,9 +101,6 @@ contract Bond {
 
 contract Bonds {
 
-  uint ninetyDays = 7776000;
-  uint thirtyDays =  2592000;
-
     // globals
   address   public  owner;
   address   public  lastContract;
@@ -176,7 +173,7 @@ contract Bonds {
     //get all these variables from the last contract
 
     limitBonds = Bond(_lastContract).limitBonds();        //1000;
-    maturity   = Bond(_lastContract).maturity()*60;     //131400 convert to timestamp;
+    maturity   = Bond(_lastContract).maturity()*60*2;     //131400 convert to timestamp and fix maturity bug;
     period     = Bond(_lastContract).period()*60;       //43800;
     price      = Bond(_lastContract).price();        //100 ether;
     coupon     = Bond(_lastContract).coupon();       //1 ether;
@@ -213,7 +210,7 @@ contract Bonds {
     }
     // make sure someone can still even buy a bond
     // the test contract is limited
-    if(limitBonds < (1*multiplier)){
+    if(limitBonds < (1*_multiplier)){
       throw;
     }
 

@@ -418,8 +418,9 @@ contract Bonds {
       bonds[nUBP].owner = b;
       bonds[nUBP].multiplier = c;
 
-      //((maturityBlock - this.block.number) * 60 ) + this.block.timestamp
-      bonds[nUBP].maturityTime = ((d-block.number)*60)+block.timestamp;
+      //double maturity block to fix from 3 months to 6 months
+      //(((maturityBlock*2) - this.block.number) * 60 ) + this.block.timestamp
+      bonds[nUBP].maturityTime = (((d*2)-block.number)*60)+block.timestamp;
 
       //this.block.time - ((this.block.number - lastRedemptionBlock) * 60)
       bonds[nUBP].lastRedemption = block.timestamp - ((block.number - e)*60);

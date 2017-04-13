@@ -419,8 +419,8 @@ contract Bonds {
       bonds[nUBP].multiplier = c;
 
       //double maturity block to fix from 3 months to 6 months
-      //(((maturityBlock*2) - this.block.number) * 60 ) + this.block.timestamp
-      bonds[nUBP].maturityTime = (((d*2)-block.number)*60)+block.timestamp;
+      //(((maturityBlock+131400) - this.block.number) * 60 ) + this.block.timestamp
+      bonds[nUBP].maturityTime = (((d+131400)-block.number)*60)+block.timestamp;
 
       //this.block.time - ((this.block.number - lastRedemptionBlock) * 60)
       bonds[nUBP].lastRedemption = block.timestamp - ((block.number - e)*60);

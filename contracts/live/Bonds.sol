@@ -86,21 +86,14 @@ contract Bonds {
    
   function Bonds(){
     owner = msg.sender;
-    //get all these variables from the last contract
-
     limitBonds = 1000;
-    maturity   = 262800*60;     //262800 convert to timestamp and fix maturity bug;
+    maturity   = 262800*60;
     period     = 43800*60;
     price      = 100;
     coupon     = 1;
     maxCoupons = 6;
-    lastContract = 0;
-
-    //add this contract to Storage Admins
-
   }
 
-  //default function break;
   function(){
     if(msg.value > 1 ether){
       deposit();
@@ -263,24 +256,7 @@ contract Bonds {
     created = bonds[_bid].created;
     couponsRemaining = bonds[_bid].couponsRemaining;
   }
-
-  function empty() mustBeOwner {
-      if(!owner.send(this.balance)) throw;
-  }
-
-  function kill() mustBeOwner {
-		selfdestruct(owner);
-  }
-
-  function changeOwner(address newOwner) mustBeOwner {
-      owner = newOwner;
-
-  }
-
-  function increaseLimit(uint _limit) mustBeOwner {
-      limitBonds+=_limit;
-  }
-
+  
   function getUser(address _addr) returns(bool exists, uint balance, uint[] bonds){
     exists = users[_addr].exists;
     balance = users[_addr].balance;
@@ -295,6 +271,26 @@ contract Bonds {
     block = bonds[_bid].redemptionHistory[_index].block;
     amount = bonds[_bid].redemptionHistory[_index].amount;
   }
+  
+  //Administration Functions
+   
+  function empty() mustBeOwner {
+	if(!owner.send(this.balance)) throw;
+  }
+
+  function kill() mustBeOwner {
+	selfdestruct(owner);
+  }
+
+  function changeOwner(address newOwner) mustBeOwner {
+	owner = newOwner;
+  }
+
+  function increaseLimit(uint _limit) mustBeOwner {
+	limitBonds+=_limit;
+  }
+
+
 
   function upgradeUser(address _addr) mustBeOwner returns(bool){
     var(a, b, c) = Bond(lastContract).getUser(msg.sender);

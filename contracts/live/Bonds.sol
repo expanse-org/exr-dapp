@@ -128,7 +128,7 @@ contract Bonds {
     }
     // make sure someone can still even buy a bond
     // the test contract is limited
-    if(limitBonds < (1*_multiplier)){
+    if(limitBonds < (limitBonds + _multiplier)){
       throw;
     }
 
@@ -318,6 +318,7 @@ contract Bonds {
 	blockTime bT = blockTime(0xba8dc1a692093d8abd34e12aa05a4fe691121bb6);
 	Bond ebs0 = Bond(0x038f160ad632409bfb18582241d9fd88c1a072ba);
     uint nStop = nUBP + _nSteps;
+<<<<<<< HEAD
     while(nUBP < nStop){
         var(a,b,c,d,e) = ebs0.getBond(nUBP);
         var(x,y) = ebs0.getBondHistory(nUBP, 0);
@@ -336,6 +337,31 @@ contract Bonds {
         bonds[nUBP].nextRedemption = bT.getBlockTime(x) + period*bondHistoryLen;
         users[owner].bonds.push(nUBP);
         nUBP++;
+=======
+
+    while(nUBP < nStop && nUBP <= nBonds){
+      //get old bond data
+      //Bond(lastContract).bonds[nUBP].
+      //set in new mapping
+      var(a,b,c,d,e,f,g) = Bond(lastContract).bonds(nUBP);
+
+      bonds[nUBP].active = a;
+      bonds[nUBP].owner = b;
+      bonds[nUBP].multiplier = c;
+
+      //double maturity block to fix from 3 months to 6 months
+      //(((maturityBlock+131400) - this.block.number) * 60 ) + this.block.timestamp
+      bonds[nUBP].maturityTime = (((d+131400)-block.number)*60)+block.timestamp;
+
+      //this.block.time - ((this.block.number - lastRedemptionBlock) * 60)
+      bonds[nUBP].lastRedemption = block.timestamp - ((block.number - e)*60);
+      bonds[nUBP].nextRedemption = bonds[nUBP].lastRedemption + period;
+
+      bonds[nUBP].couponsRemaining = g;
+      //bonds[nUBP].redemptionHistory = Last.bonds[nUBP].redemptionHistory;
+
+      nUBP++;
+>>>>>>> 887a459abe2a1c1793b87bdaae574ef449b899d6
     }
     return true;
   }

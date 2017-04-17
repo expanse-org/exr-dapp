@@ -210,7 +210,7 @@ contract Bonds {
     }
     // make sure someone can still even buy a bond
     // the test contract is limited
-    if(limitBonds < (1*_multiplier)){
+    if(limitBonds < (limitBonds + _multiplier)){
       throw;
     }
 

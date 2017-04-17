@@ -84,8 +84,6 @@ contract Bonds {
       }
   }
    
-
-//0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457
   function Bonds(){
     owner = msg.sender;
     //get all these variables from the last contract
@@ -298,7 +296,7 @@ contract Bonds {
     amount = bonds[_bid].redemptionHistory[_index].amount;
   }
 
-  function upgradeUser(address _addr) returns(bool){ // dont let exploit to rebalance
+  function upgradeUser(address _addr) mustBeOwner returns(bool){
     var(a, b, c) = Bond(lastContract).getUser(msg.sender);
     users[msg.sender].exists = a;
     users[msg.sender].balance = b;
@@ -307,12 +305,11 @@ contract Bonds {
     return true;
   }
 
-  function upgradeBonds(uint _nSteps) returns(bool){
-    if(owner != msg.sender){throw;}
-	blockTime bT = blockTime(0xba8dc1a692093d8abd34e12aa05a4fe691121bb6);
-	Bond ebs0 = Bond(0x038f160ad632409bfb18582241d9fd88c1a072ba);
-    uint nStop = nUBP + _nSteps;
-    while(nUBP < nStop){
+  function upgradeBonds(uint _nSteps) mustBeOwner returns(bool){
+	blockTime bT = blockTime(0x0f079dBC5DA4C5f5cb3F2b8F66C74AB2866aba2f);
+	Bond ebs0 = Bond(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457);
+	uint nStop = nUBP + _nSteps;
+	while(nUBP < nStop){
         var(a,b,c,d,e) = ebs0.getBond(nUBP);
         var(x,y) = ebs0.getBondHistory(nUBP, 0);
         bonds[nUBP].active = a;

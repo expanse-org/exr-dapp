@@ -45,22 +45,22 @@ contract Bonds {
     uint nextRedemption;		// timestamp of next avail redemption
 	uint created;				// block number of when bond was created
     uint couponsRemaining;		// amount of coupons unredeemed
-    History[] redemptionHistory;// a History (blockHeight, amount) of each redemption
+    sHistory[] redemptionHistory;// a History (blockHeight, amount) of each redemption
   }
 
-  struct User {
+  struct sUser {
       bool exists;
       uint balance;
       uint[] bonds;
       bool upgraded;
   }
 
-  struct History {
+  struct sHistory {
     uint block;
     uint amount;
   }
 
-  mapping(address=>User) public users;
+  mapping(address=>sUser) public users;
   mapping(uint=>sBond) public bonds;
 
   modifier mustOwnBond(uint bondId){
@@ -89,7 +89,24 @@ contract Bonds {
     users[msg.sender].balance+=msg.value;
     Deposits(msg.sender, msg.value);
   }
-
+  
+  function withdraw() returns(bool){
+    uint bal = users[msg.sender].balance;
+    if(this.balance < bal) throw;
+    users[msg.sender].balance = 0;
+    if(!msg.sender.send(bal)) throw;
+    Withdraws(bal, msg.sender);
+    return true;
+  }
+  
+  function transfer(uint _bid, address _to) mustOwnBond(_bid) returns(bool){
+    bonds[_bid].owner = _to;
+    delete users[msg.sender].bonds[_bid];
+    users[_to].bonds.push(_bid);
+    Transfers(msg.sender, _to);
+    return true;
+  }
+  
   function buy(uint _multiplier) returns(uint bondId){
     if(_multiplier < 1) _multiplier = 1;
     if(_multiplier > limitBonds-totalBonds) throw;
@@ -114,7 +131,7 @@ contract Bonds {
     users[msg.sender].bonds.push(bondId);
     Buys(msg.sender, bondId, bonds[bondId].multiplier, bonds[bondId].maturityTime);
   }
-
+  
   function redeemCoupon(uint _bid) mustOwnBond(_bid) returns(bool, bool, uint){
 
 
@@ -138,7 +155,7 @@ contract Bonds {
       uint amt = bonds[_bid].multiplier*periods;
 
       bonds[_bid].lastRedemption = block.timestamp;
-      bonds[_bid].redemptionHistory.push(History(block.timestamp, amt));
+      bonds[_bid].redemptionHistory.push(sHistory(block.timestamp, amt));
 
       users[msg.sender].balance+=amt;
       Redemptions(msg.sender, _bid, amt);
@@ -159,22 +176,7 @@ contract Bonds {
     return false;
   }
 
-  function withdraw() returns(bool){
-    uint bal = users[msg.sender].balance;
-    if(this.balance < bal) throw;
-    users[msg.sender].balance = 0;
-    if(!msg.sender.send(bal)) throw;
-    Withdraws(bal, msg.sender);
-    return true;
-  }
 
-  function transfer(uint _bid, address _to) mustOwnBond(_bid) returns(bool){
-    bonds[_bid].owner = _to;
-    delete users[msg.sender].bonds[_bid];
-    users[_to].bonds.push(_bid);
-    Transfers(msg.sender, _to);
-    return true;
-  }
 
   function getBalance(address _user) constant returns(uint){
     return users[_user].balance;
@@ -242,7 +244,7 @@ contract Bonds {
         bonds[nUBP].couponsRemaining = maxCoupons-bondHistoryLen+1;
         for (uint i = 1; i < bondHistoryLen; i++) {
             var(_block,_amount)= ebs0.getBondHistory(nUBP, i);
-            bonds[nUBP].redemptionHistory.push(History(_block,_amount));
+            bonds[nUBP].redemptionHistory.push(sHistory(_block,_amount));
         }
         bonds[nUBP].nextRedemption = bT.getBlockTime(_created) + period*bondHistoryLen;
         users[owner].bonds.push(nUBP);

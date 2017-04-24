@@ -1,6 +1,6 @@
 pragma solidity ^0.4.9;
 //fixed bugs, optimized gas use, sol 0.4.9, multisig support
-//TODO: add asset guard, test/implementmultisig support
+//TODO: add asset guard and or mutex, test/implementmultisig support
 
 contract blockTime {
     function getBlockTime(uint _block) public returns(uint);
@@ -17,20 +17,19 @@ contract Bond {
 
 contract Bonds {
   address public owner;                     // contract admin address
-  address public ebsBetaContract;           // ebs beta address to migrate   
   
   uint public constant price = 100;	    	// 100 Expanse
   uint public constant maturity = 15768000;	// 6mo in seconds
   uint public constant period = 2628000;    // 1mo in seconds 
   uint public constant maxCoupons = maturity/period;
+  
 
   uint public nBonds;           // bond index (number of total bonds)
-  uint public aBonds;		    // active bond index
+  uint public activeBonds;      // active bond index
   uint public totalBonds;       // this number calculates total bonds * multipliers
   uint public limitBonds;       // max amount of bonds to be issued
   uint public nUBP;             // upgraded bond index
-
-  event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint indexed MaturityBlock);
+  event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint MaturityTime);
   event Redemptions(address indexed User, uint indexed BondId, uint indexed Amount);
   event Withdraws(uint Amount, address indexed User);
   event Transfers(address indexed TransferFrom, address indexed TransferTo);
@@ -91,26 +90,18 @@ contract Bonds {
     Deposits(msg.sender, msg.value);
   }
 
- 
-  function buy(uint _multiplier) returns(uint multiplier, uint remainder, uint bondId){
+  function buy(uint _multiplier) returns(uint bondId){
     if(_multiplier < 1) _multiplier = 1;
-    if(limitBonds < _multiplier){
-      throw;
-    }
-
+    if(_multiplier > limitBonds-totalBonds) throw;
     uint cost = price * _multiplier;
     if(users[msg.sender].balance < cost) throw;
-    users[msg.sender].balance-=cost;
+    users[msg.sender].balance -= cost;
 
-    //increment the bond index
     nBonds++;
-    totalBonds+=_multiplier;
-    aBonds+=_multiplier;
-
-    //set bondid from new index
     bondId = nBonds;
+    totalBonds+=_multiplier;
+    activeBonds+=_multiplier;
 
-    //set the bond data
     bonds[bondId].active = true;
     bonds[bondId].owner = msg.sender;
     bonds[bondId].multiplier = _multiplier;
@@ -120,15 +111,10 @@ contract Bonds {
     bonds[bondId].nextRedemption = block.timestamp + period;
     bonds[bondId].couponsRemaining = maxCoupons;
 
-    // update the users balance with the remainder
     users[msg.sender].bonds.push(bondId);
-
-    // trigger event so the world can see how awesome you are
     Buys(msg.sender, bondId, bonds[bondId].multiplier, bonds[bondId].maturityTime);
   }
 
-
-  // redeemCoupon(bondID): redeem's 
   function redeemCoupon(uint _bid) mustOwnBond(_bid) returns(bool, bool, uint){
 
 
@@ -165,7 +151,7 @@ contract Bonds {
         bonds[bondId].active = false;
         uint amt = price*bonds[bondId].multiplier;
         users[msg.sender].balance+=amt;
-        aBonds-=bonds[bondId].multiplier;
+        activeBonds-=bonds[bondId].multiplier;
         Redemptions(msg.sender, bondId, amt);
         return true;
       }

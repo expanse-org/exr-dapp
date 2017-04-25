@@ -26,6 +26,8 @@ contract Bonds {
   uint public totalBonds;       // this number calculates total bonds * multipliers
   uint public limitBonds;       // max amount of bonds to be issued
   uint public nUBP;             // upgraded bond index
+  Bond ebsBetaContract = Bond(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457);
+  
   
   event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint MaturityTime);
   event Deposits(address indexed Sender, uint Amount);
@@ -44,7 +46,7 @@ contract Bonds {
     uint nextRedemption;		// timestamp of next avail redemption
 	uint created;				// block number of when bond was created
     uint couponsRemaining;		// amount of coupons unredeemed
-    sHistory[] redemptionHistory;// a History (blockHeight, amount) of each redemption
+    sHistory[] redemptionHistory;// a History (blockHeight, amount, timestamp) of each redemption
   }
 
   struct sUser {
@@ -202,7 +204,7 @@ contract Bonds {
   function increaseLimit(uint _limit) mustBeOwner { limitBonds+=_limit; }
 
   function upgradeUser(address _addr) mustBeOwner returns(bool){
-    var(_exsists, _balance, _bonds) = Bond(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457).getUser(msg.sender);
+    var(_exsists, _balance, _bonds) = ebsBetaContract.getUser(msg.sender);
     users[msg.sender].exists = _exsists;
     users[msg.sender].balance = _balance;
     users[msg.sender].upgraded = true;
@@ -212,12 +214,11 @@ contract Bonds {
 
   function upgradeBonds(uint _nSteps) mustBeOwner returns(bool){
 	blockTime bT = blockTime(0x0f079dBC5DA4C5f5cb3F2b8F66C74AB2866aba2f);
-	Bond ebs0 = Bond(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457);
 	uint nStop = nUBP + _nSteps;
 	while(nUBP < nStop){
-        var(_active,_owner,_multiplier,_maturityTime,_lastRedemption) = ebs0.getBond(nUBP);
-        var(_created,_value) = ebs0.getBondHistory(nUBP, 0);
-		var bondHistoryLen=ebs0.getBondHistoryLength(nUBP);
+        var(_active,_owner,_multiplier,_maturityTime,_lastRedemption) = ebsBetaContract.getBond(nUBP);
+        var(_created,_value) = ebsBetaContract.getBondHistory(nUBP, 0);
+		var bondHistoryLen=ebsBetaContract.getBondHistoryLength(nUBP);
         bonds[nUBP].active = _active;
         bonds[nUBP].owner = _owner;
         bonds[nUBP].multiplier = _multiplier;
@@ -226,9 +227,9 @@ contract Bonds {
         if(_lastRedemption!=_created) bonds[nUBP].lastRedemption = _lastRedemption;
         bonds[nUBP].couponsRemaining = maxCoupons-bondHistoryLen+1;
         for (uint i = 1; i < bondHistoryLen; i++) {
-            var(_block,_amount)= ebs0.getBondHistory(nUBP, i);
-            //var btt=bT.getBlockTime(_block);
-            bonds[nUBP].redemptionHistory.push(sHistory(_block,_amount,4));
+            var(_block,_amount)= ebsBetaContract.getBondHistory(nUBP, i);
+            var _blockTime=bT.getBlockTime(_block);
+            bonds[nUBP].redemptionHistory.push(sHistory(_block,_amount,_blockTime));
         }
         bonds[nUBP].nextRedemption = bT.getBlockTime(_created) + period*bondHistoryLen;
         users[owner].bonds.push(nUBP);

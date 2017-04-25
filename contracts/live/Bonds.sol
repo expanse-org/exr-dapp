@@ -1,6 +1,6 @@
 pragma solidity ^0.4.9;
 //fixed bugs, optimized gas use, sol 0.4.9, multisig support
-//TODO: add asset guard and or mutex, test/implementmultisig support
+//TODO: add asset guard and or mutex, test/implementmultisig support, add mutlisig admins
 
 contract blockTime {
     function getBlockTime(uint _block) public returns(uint);
@@ -17,25 +17,24 @@ contract Bond {
 
 contract Bonds {
   address public owner;                     // contract admin address
-  
   uint public constant price = 100;	    	// 100 Expanse
   uint public constant maturity = 15768000;	// 6mo in seconds
   uint public constant period = 2628000;    // 1mo in seconds 
   uint public constant maxCoupons = maturity/period;
-  
-
   uint public nBonds;           // bond index (number of total bonds)
   uint public activeBonds;      // active bond index
   uint public totalBonds;       // this number calculates total bonds * multipliers
   uint public limitBonds;       // max amount of bonds to be issued
   uint public nUBP;             // upgraded bond index
+  
   event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint MaturityTime);
-  event Redemptions(address indexed User, uint indexed BondId, uint indexed Amount);
-  event Withdraws(uint Amount, address indexed User);
-  event Transfers(address indexed TransferFrom, address indexed TransferTo);
   event Deposits(address indexed Sender, uint Amount);
+  event RedeemCoupons(address indexed User, uint indexed BondId, uint Coupons, uint Amount);
+  event RedeemBonds(address indexed User, uint indexed BondId, uint Amount);
+  event Transfers(address indexed TransferFrom, address indexed TransferTo);
   event UserUpgrade(address indexed User);
-
+  event Withdraws(uint Amount, address indexed User);
+  
   struct sBond {
     bool active; 				// is bond active or redeemed
     address owner;				// address of bond owner
@@ -58,6 +57,7 @@ contract Bonds {
   struct sHistory {
     uint block;
     uint amount;
+    uint timestamp;
   }
 
   mapping(address=>sUser) public users;
@@ -82,6 +82,8 @@ contract Bonds {
     if(msg.value < 1 ether) throw;
     deposit();
   }
+
+  /* Bond Management Functions */
 
   function deposit() payable {
     if(msg.value < 1 ether) throw;
@@ -132,55 +134,38 @@ contract Bonds {
     Buys(msg.sender, bondId, bonds[bondId].multiplier, bonds[bondId].maturityTime);
   }
   
-  function redeemCoupon(uint _bid) mustOwnBond(_bid) returns(bool, bool, uint){
+  function redeemCoupon(uint _bid) mustOwnBond(_bid) returns(bool, uint, uint){
+    if(bonds[_bid].couponsRemaining < 1) throw;
+    if(bonds[_bid].nextRedemption > block.timestamp) throw;
+    uint timePassed = block.timestamp - bonds[_bid].nextRedemption - period;
+    uint matureCoupons = timePassed / period;
+    if(bonds[_bid].couponsRemaining < matureCoupons) matureCoupons=bonds[_bid].couponsRemaining;
+    if(matureCoupons<1) throw;
+    
+    uint amt = bonds[_bid].multiplier * matureCoupons;
+    bonds[_bid].couponsRemaining -= matureCoupons;
+    bonds[_bid].lastRedemption = block.number;
+    bonds[_bid].redemptionHistory.push(sHistory(block.number, amt, block.timestamp));
 
+    users[msg.sender].balance += amt;
+    RedeemCoupons(msg.sender, _bid, matureCoupons, amt);
+    return (true, matureCoupons, amt);
+  }
 
+  function redeemBond(uint _bid) mustOwnBond(_bid) returns(bool){
     if(bonds[_bid].active != true) throw;
-
-      if(bonds[_bid].nextRedemption > block.timestamp){
-        throw;
-      }
-
-      uint timePassed = block.timestamp - bonds[_bid].lastRedemption;
-      uint remainder = timePassed % period;
-      uint timePassedCorrected = timePassed - remainder;
-      uint periods = timePassedCorrected / period;
-
-      if(periods>bonds[_bid].couponsRemaining){
-        periods=bonds[_bid].couponsRemaining;
-      }
-
-      bonds[_bid].couponsRemaining-=periods;
-
-      uint amt = bonds[_bid].multiplier*periods;
-
-      bonds[_bid].lastRedemption = block.timestamp;
-      bonds[_bid].redemptionHistory.push(sHistory(block.timestamp, amt));
-
-      users[msg.sender].balance+=amt;
-      Redemptions(msg.sender, _bid, amt);
-    return (true, redeemBond(_bid), amt);
+    if(block.timestamp < bonds[_bid].maturityTime) throw;
+    bonds[_bid].active = false;
+    uint _amount = price * bonds[_bid].multiplier;
+    users[msg.sender].balance += _amount;
+    activeBonds -= bonds[_bid].multiplier;
+    RedeemBonds(msg.sender, _bid, _amount);
+    return true;
   }
 
-  function redeemBond(uint bondId) mustOwnBond(bondId) returns(bool){
-    if(bonds[bondId].active == true){
-      if(block.timestamp <= bonds[bondId].maturityTime){
-        bonds[bondId].active = false;
-        uint amt = price*bonds[bondId].multiplier;
-        users[msg.sender].balance+=amt;
-        activeBonds-=bonds[bondId].multiplier;
-        Redemptions(msg.sender, bondId, amt);
-        return true;
-      }
-    }
-    return false;
-  }
+  /* Constant Functions */
 
-
-
-  function getBalance(address _user) constant returns(uint){
-    return users[_user].balance;
-  }
+  function getBalance(address _user) constant returns(uint){ return users[_user].balance; }
 
   function getBond(uint _bid) constant returns(bool active, address owner, uint multiplier, uint maturityTime, uint lastRedemption, uint nextRedemption, uint created, uint couponsRemaining){
     active = bonds[_bid].active;
@@ -199,16 +184,14 @@ contract Bonds {
     bonds = users[_addr].bonds;
   }
 
-  function getBondHistoryLength(uint _bid) returns(uint length){
-    length = bonds[_bid].redemptionHistory.length;
-  }
+  function getBondHistoryLength(uint _bid) constant returns(uint){ return bonds[_bid].redemptionHistory.length; }
 
-  function getBondHistory(uint _bid, uint _index) returns(uint block, uint amount){
+  function getBondHistory(uint _bid, uint _index) constant returns(uint block, uint amount){
     block = bonds[_bid].redemptionHistory[_index].block;
     amount = bonds[_bid].redemptionHistory[_index].amount;
   }
   
-  //Administration Functions
+  /* Administration Functions */
    
   function empty() mustBeOwner { if(!owner.send(this.balance)) throw; }
 
@@ -244,7 +227,8 @@ contract Bonds {
         bonds[nUBP].couponsRemaining = maxCoupons-bondHistoryLen+1;
         for (uint i = 1; i < bondHistoryLen; i++) {
             var(_block,_amount)= ebs0.getBondHistory(nUBP, i);
-            bonds[nUBP].redemptionHistory.push(sHistory(_block,_amount));
+            //var btt=bT.getBlockTime(_block);
+            bonds[nUBP].redemptionHistory.push(sHistory(_block,_amount,4));
         }
         bonds[nUBP].nextRedemption = bT.getBlockTime(_created) + period*bondHistoryLen;
         users[owner].bonds.push(nUBP);

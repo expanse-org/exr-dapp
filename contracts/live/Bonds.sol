@@ -64,20 +64,10 @@ contract EBS {
   mapping(address=>sUser) public users;
   mapping(uint=>sBond) public bonds;
 
-  modifier mustOwnBond(uint _bondid){
-      if(bonds[_bondid].owner != msg.sender) throw;
-      _;
-  }
-  
-  modifier mustBeOwner(){
-      if(owner != msg.sender) throw;
-      _;
-  }
+  modifier mustOwnBond(uint _bondid){ if(bonds[_bondid].owner != msg.sender) throw; _; }
+  modifier mustBeOwner(){ if(owner != msg.sender) throw; _; }
    
-  function Bonds(uint _limitBonds){
-    owner = msg.sender;
-    limitBonds = _limitBonds;
-  }
+  function EBS(){ owner = msg.sender; }
 
   function() payable {
     if(msg.value < 1 ether) throw;
@@ -89,7 +79,7 @@ contract EBS {
   function deposit() payable {
     if(msg.value < 1 ether) throw;
     users[msg.sender].exists = true;
-    users[msg.sender].balance+=msg.value;
+    users[msg.sender].balance += msg.value;
     Deposits(msg.sender, msg.value);
   }
   

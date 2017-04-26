@@ -26,6 +26,7 @@ contract EBS {
   uint public totalBonds;       // this number calculates total bonds * multipliers
   uint public limitBonds;       // max amount of bonds to be issued
   uint public nUBP;             // upgraded bond index
+  EBSBeta ebsBetaContract = EBSBeta(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457);
   
   event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint MaturityTime);
   event Deposits(address indexed Sender, uint Amount);
@@ -191,9 +192,17 @@ contract EBS {
 
   function increaseLimit(uint _limit) mustBeOwner { limitBonds+=_limit; }
 
+  function upgradeUser(address _addr) private returns(bool){
+    var(_exsists, _balance, _bonds) = ebsBetaContract.getUser(msg.sender);
+    users[msg.sender].exists = _exsists;
+    users[msg.sender].balance = _balance;
+    users[msg.sender].upgraded = true;
+    UserUpgrade(msg.sender);
+    return true;
+  }
+
   function upgradeBonds(uint _nSteps) mustBeOwner returns(bool){
 	EBSBlockTime blockTime = EBSBlockTime(0x0f079dBC5DA4C5f5cb3F2b8F66C74AB2866aba2f);
-	EBSBeta ebsBetaContract = EBSBeta(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457);
 	uint nStop = nUBP + _nSteps;
 	while(nUBP < nStop){
         var(_active,_owner,_multiplier,_maturityTime,_lastRedemption) = ebsBetaContract.getBond(nUBP);
@@ -201,13 +210,7 @@ contract EBS {
 		var bondHistoryLen=ebsBetaContract.getBondHistoryLength(nUBP);
         bonds[nUBP].active = _active;
         bonds[nUBP].owner = _owner;
-		if(!users[msg.sender].exists){
-			var(_exsists, _balance, _bonds) = ebsBetaContract.getUser(_owner);
-		    users[msg.sender].exists = _exsists;
-		    users[msg.sender].balance = _balance;
-		    users[msg.sender].upgraded = true;
-		    UserUpgrade(msg.sender);
-		}
+		if(!users[msg.sender].exists) upgradeUser(_owner);
         bonds[nUBP].multiplier = _multiplier;
         bonds[nUBP].created  = _created;
         bonds[nUBP].maturityTime = blockTime.getBlockTime(_created) + maturity; 

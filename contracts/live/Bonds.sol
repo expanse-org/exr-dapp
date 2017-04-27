@@ -145,6 +145,7 @@ contract EBS {
   function redeemBond(uint _bondid) mustOwnBond(_bondid) returns(bool){
     if(bonds[_bondid].active != true) throw;
     if(block.timestamp < bonds[_bondid].maturityTime) throw;
+    if(bonds[_bondid].couponsRemaining>0) redeemCoupon(_bondid);
     bonds[_bondid].active = false;
     uint amount = price * bonds[_bondid].multiplier;
     users[msg.sender].balance += amount;

@@ -1,6 +1,4 @@
-pragma solidity ^0.4.9;
-//fixed bugs, optimized gas use, sol 0.4.9, multisig support
-//TODO: add asset guard and or mutex, test/implementmultisig support, add mutlisig admins
+pragma solidity ^0.4.8;
 
 contract EBSBlockTime {
     function getBlockTime(uint _block) public returns(uint);
@@ -17,7 +15,7 @@ contract EBSBeta {
 
 contract EBS {
   address public owner;                     // contract admin address
-  uint public constant price = 100;	    	// 100 Expanse
+  uint public constant price = 100 ether;	    	// 100 Expanse
   uint public constant maturity = 15768000;	// 6mo in seconds
   uint public constant period = 2628000;    // 1mo in seconds 
   uint public constant maxCoupons = maturity/period;
@@ -27,14 +25,15 @@ contract EBS {
   uint public limitBonds;       // max amount of bonds to be issued
   uint public nUBP;             // upgraded bond index
   EBSBeta ebsBetaContract = EBSBeta(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457);
+  EBSBlockTime blockTime = EBSBlockTime(0x0f079dBC5DA4C5f5cb3F2b8F66C74AB2866aba2f);
   
   event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint MaturityTime);
   event Deposits(address indexed Sender, uint Amount);
   event RedeemCoupons(address indexed User, uint indexed BondId, uint Coupons, uint Amount);
   event RedeemBonds(address indexed User, uint indexed BondId, uint Amount);
   event Transfers(address indexed TransferFrom, address indexed TransferTo);
-  event UserUpgrade(address indexed User);
   event Withdraws(uint Amount, address indexed User);
+ 
   
   struct sBond {
     bool active; 				// is bond active or redeemed
@@ -191,40 +190,28 @@ contract EBS {
   function changeOwner(address _newOwner) mustBeOwner { owner = _newOwner; }
 
   function increaseLimit(uint _limit) mustBeOwner { limitBonds+=_limit; }
-
-  function upgradeUser(address _addr) private returns(bool){
-    var(_exsists, _balance, _bonds) = ebsBetaContract.getUser(msg.sender);
-    users[msg.sender].exists = _exsists;
-    users[msg.sender].balance = _balance;
-    users[msg.sender].upgraded = true;
-    UserUpgrade(msg.sender);
-    return true;
-  }
-
-  function upgradeBonds(uint _nSteps) mustBeOwner returns(bool){
-	EBSBlockTime blockTime = EBSBlockTime(0x0f079dBC5DA4C5f5cb3F2b8F66C74AB2866aba2f);
-	uint nStop = nUBP + _nSteps;
+  
+  function upgradeBonds(uint _nSteps) mustBeOwner {
+    uint nStop = nUBP + _nSteps;
 	while(nUBP < nStop){
-        var(_active,_owner,_multiplier,_maturityTime,_lastRedemption) = ebsBetaContract.getBond(nUBP);
-        var(_created,_value) = ebsBetaContract.getBondHistory(nUBP, 0);
-		var bondHistoryLen=ebsBetaContract.getBondHistoryLength(nUBP);
-        bonds[nUBP].active = _active;
-        bonds[nUBP].owner = _owner;
-		if(!users[msg.sender].exists) upgradeUser(_owner);
-        bonds[nUBP].multiplier = _multiplier;
-        bonds[nUBP].created  = _created;
-        bonds[nUBP].maturityTime = blockTime.getBlockTime(_created) + maturity; 
-        if(_lastRedemption!=_created) bonds[nUBP].lastRedemption = _lastRedemption;
-        bonds[nUBP].couponsRemaining = maxCoupons - bondHistoryLen+1;
-        for (uint i = 1; i < bondHistoryLen; i++) {
-            var(_block,_amount)= ebsBetaContract.getBondHistory(nUBP, i);
-            var _blockTime=blockTime.getBlockTime(_block);
-            bonds[nUBP].redemptionHistory.push(sHistory(_block,_amount,_blockTime));
-        }
-        bonds[nUBP].nextRedemption = blockTime.getBlockTime(_created) + period*bondHistoryLen;
-        users[owner].bonds.push(nUBP);
-        nUBP++;
-    }
-    return true;
+      nUBP++;
+      nBonds++;
+      var(_active,_owner,_multiplier,_maturityTime,_lastRedemption) = ebsBetaContract.getBond(nUBP);
+      var(_created,_value) = ebsBetaContract.getBondHistory(nUBP, 0);
+      var(_exists, _balance, _bonds) = ebsBetaContract.getUser(_owner);
+      bonds[nUBP].active = _active;
+      bonds[nUBP].owner = _owner;
+      bonds[nUBP].multiplier = _multiplier;
+      bonds[nUBP].created  = _created;
+      bonds[nUBP].maturityTime = blockTime.getBlockTime(_created) + maturity; 
+      bonds[nUBP].nextRedemption = blockTime.getBlockTime(_created) + period;
+      bonds[nUBP].couponsRemaining = maxCoupons;
+      users[_owner].bonds.push(nUBP);
+      users[_owner].exists = true;
+      users[_owner].upgraded = true;
+      users[_owner].balance = _balance;
+      activeBonds+=_multiplier;
+	}
+	totalBonds=activeBonds;
   }
 }

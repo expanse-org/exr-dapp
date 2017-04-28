@@ -47,10 +47,8 @@
 </div>
 
 <!-- Elctron Compat--> 
-
-
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="public/js/jquery.min.js"></script>  
-
 <!-- Angular --> 
 <script src="bower_components/angular/angular.js"></script> 
 <script src="bower_components/angular-route/angular-route.js"></script> 
@@ -99,7 +97,7 @@
 <script src="core/bond-form/bond-form.component.js"></script>  
 <script src="core/footer/footer.module.js"></script> 
 <script src="core/footer/footer.component.js"></script>
-<!-- Electron Compat -->
-
+<!-- End Electron Jquery Compat -->
+<script>if (window.module) module = window.module;</script>
 </body>
 </html>

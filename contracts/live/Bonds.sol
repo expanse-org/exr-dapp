@@ -197,8 +197,8 @@ contract EBS {
 	while(nUBP < nStop){
       nUBP++;
       nBonds++;
-      var(_active,_owner,_multiplier,_maturityTime,_lastRedemption) = ebsBetaContract.getBond(nUBP);
-      var(_created,_value) = ebsBetaContract.getBondHistory(nUBP, 0);
+      var(_active, _owner, _multiplier, _maturityTime, _lastRedemption) = ebsBetaContract.getBond(nUBP);
+      var(_created, _value) = ebsBetaContract.getBondHistory(nUBP, 0);
       var(_exists, _balance, _bonds) = ebsBetaContract.getUser(_owner);
       bonds[nUBP].active = _active;
       bonds[nUBP].owner = _owner;
@@ -211,8 +211,8 @@ contract EBS {
       users[_owner].exists = true;
       users[_owner].upgraded = true;
       users[_owner].balance = _balance;
-      activeBonds+=_multiplier;
+      activeBonds += _multiplier;
 	}
-	totalBonds=activeBonds;
+	totalBonds = activeBonds;
   }
 }

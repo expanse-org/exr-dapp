@@ -66,7 +66,7 @@ contract EBS {
   modifier mustOwnBond(uint _bondid){ if(bonds[_bondid].owner != msg.sender) throw; _; }
   modifier mustBeOwner(){ if(owner != msg.sender) throw; _; }
    
-  function EBS(){ owner = msg.sender; }
+  function EBS() payable { owner = msg.sender; }
 
   function() payable {
     if(msg.value < 1 ether) throw;

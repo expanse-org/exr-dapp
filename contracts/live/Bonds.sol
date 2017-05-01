@@ -31,7 +31,7 @@ contract EBS {
   event Deposits(address indexed Sender, uint Amount);
   event RedeemCoupons(address indexed User, uint indexed BondId, uint Coupons, uint Amount);
   event RedeemBonds(address indexed User, uint indexed BondId, uint Amount);
-  event Transfers(address indexed TransferFrom, address indexed TransferTo);
+  event Transfers(address indexed TransferFrom, address indexed TransferTo, uint indexed BondId);
   event Withdraws(uint Amount, address indexed User);
  
   
@@ -95,7 +95,7 @@ contract EBS {
     bonds[_bondid].owner = _to;
     delete users[msg.sender].bonds[_bondid];
     users[_to].bonds.push(_bondid);
-    Transfers(msg.sender, _to);
+    Transfers(msg.sender, _to, _bondid);
     return true;
   }
   

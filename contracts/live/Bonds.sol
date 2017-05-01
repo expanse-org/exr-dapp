@@ -34,7 +34,6 @@ contract EBS {
   event RedeemBonds(address indexed User, uint indexed BondId, uint Amount);
   event Transfers(address indexed TransferFrom, address indexed TransferTo, uint indexed BondId);
   event Withdraws(uint Amount, address indexed User);
- 
   
   struct sBond {
     bool active; 				// is bond active or redeemed
@@ -116,7 +115,7 @@ contract EBS {
     bonds[bondId].owner = msg.sender;
     bonds[bondId].multiplier = _multiplier;
     bonds[bondId].maturityTime = block.timestamp + maturity;
-	bonds[bondId].created = block.number;
+	  bonds[bondId].created = block.number;
     bonds[bondId].lastRedemption = block.number;
     bonds[bondId].nextRedemption = block.timestamp + period;
     bonds[bondId].couponsRemaining = maxCoupons;
@@ -128,14 +127,15 @@ contract EBS {
   function redeemCoupon(uint _bondid) mustOwnBond(_bondid) returns(bool, uint, uint){
     if(bonds[_bondid].couponsRemaining < 1) throw;
     if(bonds[_bondid].nextRedemption > block.timestamp) throw;
-    uint timePassed = block.timestamp - bonds[_bondid].nextRedemption - period;
+    uint timePassed = block.timestamp - (bonds[_bondid].nextRedemption - period);
     uint matureCoupons = timePassed / period;
-    if(bonds[_bondid].couponsRemaining < matureCoupons) matureCoupons=bonds[_bondid].couponsRemaining;
     if(matureCoupons<1) throw;
-    
+    if(bonds[_bondid].couponsRemaining < matureCoupons) matureCoupons=bonds[_bondid].couponsRemaining;
+     
     uint amount = (bonds[_bondid].multiplier * matureCoupons)*coupon;
     bonds[_bondid].couponsRemaining -= matureCoupons;
     bonds[_bondid].lastRedemption = block.number;
+    bonds[_bondid].nextRedemption += (period*matureCoupons);
     bonds[_bondid].redemptionHistory.push(sHistory(block.number, amount, block.timestamp));
 
     users[msg.sender].balance += amount;
@@ -197,6 +197,7 @@ contract EBS {
     uint nStop = nUBP + _nSteps;
 	while(nUBP < nStop){
       nUBP++;
+
       nBonds++;
       var(_active, _owner, _multiplier, _maturityTime, _lastRedemption) = ebsBetaContract.getBond(nUBP);
       var(_created, _value) = ebsBetaContract.getBondHistory(nUBP, 0);

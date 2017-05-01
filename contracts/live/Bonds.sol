@@ -127,20 +127,22 @@ contract EBS {
   function redeemCoupon(uint _bondid) mustOwnBond(_bondid) returns(bool, uint, uint){
     if(bonds[_bondid].couponsRemaining < 1) throw;
     if(bonds[_bondid].nextRedemption > block.timestamp) throw;
-    uint timePassed = block.timestamp - (bonds[_bondid].nextRedemption - period);
-    uint matureCoupons = timePassed / period;
-    if(matureCoupons<1) throw;
-    if(bonds[_bondid].couponsRemaining < matureCoupons) matureCoupons=bonds[_bondid].couponsRemaining;
-     
-    uint amount = (bonds[_bondid].multiplier * matureCoupons)*coupon;
-    bonds[_bondid].couponsRemaining -= matureCoupons;
-    bonds[_bondid].lastRedemption = block.number;
-    bonds[_bondid].nextRedemption += (period*matureCoupons);
-    bonds[_bondid].redemptionHistory.push(sHistory(block.number, amount, block.timestamp));
+    uint timePassed = block.timestamp - (bonds[_bondid].nextRedemption-period);
+    if(timePassed < period) throw;
+    uint remainder = timePassed % period;
+    uint timePassedCorrected = timePassed - remainder;
+    uint periods = timePassedCorrected / period;
+    if(bonds[_bondid].couponsRemaining < periods) periods=bonds[_bondid].couponsRemaining;
 
+    bonds[_bondid].nextRedemption += period*periods;
+    bonds[_bondid].couponsRemaining -= periods;
+    bonds[_bondid].lastRedemption = block.number;
+    
+    uint amount = (bonds[_bondid].multiplier * periods)*coupon;
+    bonds[_bondid].redemptionHistory.push(sHistory(block.number, amount, block.timestamp));
     users[msg.sender].balance += amount;
-    RedeemCoupons(msg.sender, _bondid, matureCoupons, amount);
-    return (true, matureCoupons, amount);
+    RedeemCoupons(msg.sender, _bondid, periods, amount);
+    return (true, periods, amount);
   }
 
   function redeemBond(uint _bondid) mustOwnBond(_bondid) returns(bool){

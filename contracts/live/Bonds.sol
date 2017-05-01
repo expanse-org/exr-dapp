@@ -15,6 +15,7 @@ contract EBSBeta {
 
 contract EBS {
   address public owner;                     // contract admin address
+  uint public constant coupon = 1 ether;
   uint public constant price = 100 ether;	    	// 100 Expanse
   uint public constant maturity = 15768000;	// 6mo in seconds
   uint public constant period = 2628000;    // 1mo in seconds 
@@ -132,7 +133,7 @@ contract EBS {
     if(bonds[_bondid].couponsRemaining < matureCoupons) matureCoupons=bonds[_bondid].couponsRemaining;
     if(matureCoupons<1) throw;
     
-    uint amount = bonds[_bondid].multiplier * matureCoupons;
+    uint amount = (bonds[_bondid].multiplier * matureCoupons)*coupon;
     bonds[_bondid].couponsRemaining -= matureCoupons;
     bonds[_bondid].lastRedemption = block.number;
     bonds[_bondid].redemptionHistory.push(sHistory(block.number, amount, block.timestamp));

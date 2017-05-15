@@ -34,7 +34,7 @@ contract EBS {
   event RedeemBonds(address indexed User, uint indexed BondId, uint Amount);
   event Transfers(address indexed TransferFrom, address indexed TransferTo, uint indexed BondId);
   event Withdraws(uint Amount, address indexed User);
-  event Log(uint Log);
+
   struct sBond {
     bool active; 				// is bond active or redeemed
     address owner;				// address of bond owner

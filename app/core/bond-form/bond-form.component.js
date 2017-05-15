@@ -13,10 +13,10 @@
       
       vm.buyBond = function() {
         if(!isNaN(vm.multiplier) && vm.multiplier > 0) {
-          if( (parseInt(this.multiplier) * vm.ebsVars.price) > parseInt(this.account.bondBalance)){
+          if( (parseInt(this.multiplier, 10) * vm.ebsVars.price) > parseInt(this.account.bondBalance, 10)){
             growl.error('Insufficient Funds: '+(vm.multiplier*vm.ebsVars.price)+' EXP is required to be deposited into the EBS contract wallet by account '+this.account.address+'. Current EBS Wallet Balance is '+vm.account.bondBalance, {title:"Insufficient Funds", ttl: -1});
           } else {
-            if(parseInt(vm.multiplier) <= vm.ebsVars.bondsAvail){
+            if(parseInt(vm.multiplier, 10) <= vm.ebsVars.bondsAvail){
               bondService.confirmModal(
                 "Confirm Bond Purchase",
                 "You are about to purchase a bond with a multiplier of " + vm.multiplier + " for a total of " + (vm.multiplier * vm.ebsVars.price) + "EXP.<br />Are you sure you wish to proceed?",

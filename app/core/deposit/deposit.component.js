@@ -7,10 +7,9 @@
     controller: function(bondService, growl, $location, $routeParams) {
       var vm = this;
       vm.account = bondService.getAccount($routeParams.account);
-      var isInt = function(n) { return parseInt(n) === n };
       vm.deposit = function() { 
         if(angular.isNumber(vm.depositVal) && vm.depositVal>0 && (vm.depositVal % 1 === 0) ) {
-          if(parseInt(vm.depositVal,10) > parseInt(vm.account.balance)){
+          if(parseInt(vm.depositVal,10) > parseInt(vm.account.balance,10)){
             growl.error('Deposit value ' + vm.depositVal + ' exceeds account balance for account ' + vm.account.address+'.', {title:"Deposit Error", ttl: -1});  
           } else {
               bondService.confirmModal(

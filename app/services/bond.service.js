@@ -5,7 +5,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   const remote = require('electron').remote;
   const spawnargs = require('spawn-args');
   const semver = require('semver');
-  
+  const fs = require('fs');
+  const path = require('path');
   const web3 = new Web3();
   const net = require('net');
   
@@ -115,17 +116,23 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   
   /*  Node/Connectivity Functions  */
   var launchNode = function(){
-    var gexp = require('path').resolve(__dirname + '/gexp');
-    gexpChild = spawn(gexp, spawnargs($localStorage.launchArgs), {
-      detached: true,
-      stdio: 'ignore'
+    var localPath = __dirname + '/gexp';
+    if(process.platform=="win32") localPath += ".exe";
+    fs.stat(path.resolve(localPath), function fsStat(err, stats) {
+      if (err) {
+        console.log("Could not launch node, "+err);
+        growl.error("Could not launch embedded gexp instance. "+err, {title:"Error Launching Node", ttl: 11000});
+      } else {
+        gexpChild = spawn(path.resolve(localPath), spawnargs($localStorage.launchArgs), {
+          detached: true,
+          stdio: 'ignore'
+        });
+        growl.info("Launching embedded gexp node instance.", {title:"Launching Node", ttl: 11000});
+        var timer = function() { if(!connect()) $timeout(timer(), 1500); };
+        $timeout(timer(), 5000);
+      }
+      console.log('a');
     });
-
-    growl.info("Launching embedded gexp node instance.", {title:"Launching Node", ttl: 11000});
-    var timer = function() {
-      if(!connect()) $timeout(timer(), 1500);
-    };
-    $timeout(timer(), 5000);
   };
   
   var closeNode = function(){ if(gexpChild) gexpChild.kill();  };

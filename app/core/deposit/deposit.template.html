@@ -1,29 +1,32 @@
-<div align="center" class="hr-divider" style="margin:10px;"></div>
-<div class="row" style="padding:15px 20px 0px;">
-    <form name="form" class="form-inline" novalidate>
-        <div class="text-center" ng-show="$ctrl.account.balance>0">
-            <div class="col-xs-2 no-pad pt5 text-right">Amount:</div>
-            <div class=" col-xs-5">
-                <input type="text" name="depositVal" ng-disabled="$ctrl.state==1" class="form-control form-control-sm text-right" ng-model="$ctrl.depositVal" >
-                <label for="depositVal" class="col-form-label">EXP</label>
-            </div>
-            <div class="no-pad  col-xs-2 col-md-4">
-                <button id="depositButton" ng-disabled="$ctrl.state==1"  name="depositButton" class="btn btn-primary" ng-confirm-click="You are about to deposit to EBS Contract Wallet from account {{$ctrl.account.address}}." confirmed-click="$ctrl.deposit($ctrl.depositVal)" >Deposit</button>
-            </div>
-		</div>
-	</form>      
+<dashhead title="Bonds"></dashhead>
+<div class="hr-divider">
+  <h3 class="hr-divider-content hr-divider-heading">Deposit to EBS</h3>
 </div>
-<div class="row" style="padding:15px 20px;">
-  <div class="col-xs-6 text-center" ng-show="$ctrl.account.bondBalance>0">
-    <form name="form" class="form" novalidate>
-      <a ng-href="#!/bond/{{$ctrl.account.address}}"><button id="buyButton" name="buyButton" class="btn btn-primary" >Create New Bond</button></a>
-    </form>
-  </div>
-  
-  
-  <div class="col-xs-6 text-center" ng-show="$ctrl.account.bondBalance>0">
-    <form name="form" class="form" novalidate>
-      <button id="withdrawButton" name="withdrawButton" class="btn btn-primary" ng-confirm-click="You are about to withdraw the entire available bond balance ({{$ctrl.account.bondBalance}} EXP) to wallet for account {{$ctrl.account.address}}." confirmed-click="$ctrl.withdraw()">Withdraw Balance</button>
-    </form>
-  </div>
+<div class="row m-t list-group">
+  <form name="form" class="form-horizontal" novalidate>
+    <div class="form-group row text-center">
+      <div class="col-xs-3 col-xs-offset-1 text-right"><strong>Address:</strong></div>
+      <div class="col-sm-4 text-left"> {{$ctrl.account.address}} </div>
+    </div>
+    <div class="form-group row text-center">
+      <div class="col-xs-3 col-xs-offset-1 text-right"><strong>Balance:</strong></div>
+      <div class="col-sm-4 text-left"> {{$ctrl.account.balance}} </div>
+    </div>
+    <div class="form-group row text-center">
+      <div class="col-xs-3 col-xs-offset-1 text-right"><strong>EBS Balance:</strong></div>
+      <div class="col-sm-4  text-left"> {{$ctrl.account.bondBalance}} </div>
+    </div>
+    <div class="row form-group text-center" ng-show="$ctrl.account.balance>0">
+      <div class="col-xs-3 col-xs-offset-1 pt5 text-right"><strong>Amount:</strong></div>
+      <div class="col-xs-3">
+        <input type="text" name="depositVal" class="form-control form-control-sm text-right" ng-model="$ctrl.depositVal" >
+      </div>
+      <div class="col-xs-1 pt5 text-left">
+        EXP
+      </div>
+    </div>
+    <div class="form-group row m-t-md text-center">
+      <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.deposit()" >Deposit to EBS</button>
+    </div>
+  </form>
 </div>

@@ -3,15 +3,15 @@
 <!--[if IE 7]> <html lang="en" ng-app="bondApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]> <html lang="en" ng-app="bondApp" class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
-<html lang="en" ng-app="bondApp" class="no-js" ng-controller="bondAppCtrl">
+<html lang="en" ng-app="bondApp" class="no-js" ng-controller="bondAppCtrl as bc">
 <!--<![endif]-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="">
-<meta name="keywords" content="">
-<meta name="author" content="">
+<meta name="description" content="expanse bond dapp">
+<meta name="keywords" content="expanse dapp bonds bond ebs smart contracts">
+<meta name="author" content="expanse.tech">
 <title>Expanse Bond dApp</title>
 <!-- Template public CSS -->
 <link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic" rel="stylesheet">
@@ -22,82 +22,70 @@
 </head>
 
 <body>
+<!-- Growls / Modals -->
 <div growl></div>
+<modal></modal>
+<!-- Main App Container -->
 <div class="container">
-  <div class="row" ng-if="hasConfirmed==true && connected==true"> 
-    <!-- SIDEBAR -->
+  <div class="row" ng-if="bc.$storage.agreementConfirm==true && bc.ebsVars.isConnected==true">
     <sidebar></sidebar>
-    <!-- CONTENT VIEWS -->
     <div class="col-sm-9 content">
-      <ng-view></ng-view>
-      <!-- FOOTER -->
+      <ng-view><dashboard></dashboard></ng-view>
       <footer></footer>
     </div>
   </div>
-  <div class="row" ng-if="hasConfirmed==false"> 
-  	<dashhead title="Terms of Use"></dashhead>
-  	<agreement></agreement>
+  <div class="row" ng-if="bc.$storage.agreementConfirm==false">
+    <dashhead title="Terms of Use"></dashhead>
+    <agreement></agreement>
     <footer></footer>
   </div>
-  <div class="row" ng-if="connected==false"> 
-  	<dashhead title="Connect to Expanse Node"></dashhead>
-  	<connect></connect>
+  <div class="row" ng-if="bc.ebsVars.isConnected==false">
+    <dashhead title="Connect to Expanse Node"></dashhead>
+    <connect></connect>
     <footer></footer>
   </div>
 </div>
 
-<!-- Elctron Compat--> 
+<!-- Electron JQuery Compatability -->
 <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-<script src="public/js/jquery.min.js"></script>  
-<!-- Angular --> 
-<script src="bower_components/angular/angular.js"></script> 
-<script src="bower_components/angular-route/angular-route.js"></script> 
-<script src="bower_components/angular-animate/angular-animate.min.js"></script> 
+<!-- JQuery -->
+<script src="public/js/jquery.min.js"></script>
+<!-- GUI Libs/Components -->
+<script src="public/js/toolkit.js"></script>
+<!-- Angular -->
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-route/angular-route.js"></script>
+<script src="bower_components/angular-animate/angular-animate.min.js"></script>
 <script src="bower_components/chart.js/dist/Chart.min.js"></script>
-<script src="bower_components/angular-chart.js/dist/angular-chart.min.js"></script> 
-<script src="bower_components/angular-growl-v2/build/angular-growl.min.js"></script> 
+<script src="bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
+<script src="bower_components/angular-growl-v2/build/angular-growl.min.js"></script>
 <!-- localStorage -->
-<script src="bower_components/ngstorage/ngStorage.js"></script> 
+<script src="bower_components/ngstorage/ngStorage.js"></script>
 <!-- Expanse web3 -->
 <script src="bower_components/web3/dist/web3.min.js"></script>
-<!-- GUI Libs/Components -->
-<script src="public/js/tablesorter.min.js"></script> 
-<script src="public/js/toolkit.js"></script> 
-<!-- Contract Interface -->
-<script src="public/js/contract.js"></script> 
-<!-- The App --> 
-<script src="app.js"></script> 
-<!-- The Sevices --> 
-<script src="services/bond.service.js"></script> 
-
-<!-- The Components --> 
-<script src="core/sidebar/sidebar.module.js"></script> 
-<script src="core/sidebar/sidebar.component.js"></script> 
-<script src="core/accounts/accounts.module.js"></script> 
-<script src="core/accounts/accounts.component.js"></script> 
-<script src="core/agreement/agreement.module.js"></script> 
-<script src="core/agreement/agreement.component.js"></script> 
-<script src="core/account-list/account-list.module.js"></script> 
-<script src="core/account-list/account-list.component.js"></script> 
-<script src="core/dashboard/dashboard.module.js"></script> 
-<script src="core/dashboard/dashboard.component.js"></script> 
-<script src="core/dashhead/dashhead.module.js"></script> 
-<script src="core/dashhead/dashhead.component.js"></script> 
-<script src="core/bond-list/bond-list.module.js"></script> 
-<script src="core/bond-list/bond-list.component.js"></script> 
-<script src="core/about/about.module.js"></script> 
-<script src="core/about/about.component.js"></script> 
-<script src="core/bonds/bonds.module.js"></script> 
-<script src="core/bonds/bonds.component.js"></script> 
-<script src="core/connect/connect.module.js"></script> 
-<script src="core/connect/connect.component.js"></script> 
-<script src="core/deposit/deposit.module.js"></script> 
-<script src="core/deposit/deposit.component.js"></script> 
-<script src="core/bond-form/bond-form.module.js"></script> 
-<script src="core/bond-form/bond-form.component.js"></script>  
-<script src="core/footer/footer.module.js"></script> 
+<!-- The Contract Interface -->
+<script src="contract.js"></script>
+<!-- The App -->
+<script src="app.js"></script>
+<!-- The Sevices -->
+<script src="services/bond.service.js"></script>
+<!-- The Components -->
+<script src="core/sidebar/sidebar.component.js"></script>
+<script src="core/accounts/accounts.component.js"></script>
+<script src="core/account-list/account-list.component.js"></script>
+<script src="core/account-history/account-history.component.js"></script>
+<script src="core/agreement/agreement.component.js"></script>
+<script src="core/bonds/bonds.component.js"></script>
+<script src="core/bond-list/bond-list.component.js"></script>
+<script src="core/bond-form/bond-form.component.js"></script>
+<script src="core/bond-transfer/bond-transfer.component.js"></script>
+<script src="core/connect/connect.component.js"></script>
+<script src="core/dashboard/dashboard.component.js"></script>
+<script src="core/dashhead/dashhead.component.js"></script>
+<script src="core/deposit/deposit.component.js"></script>
 <script src="core/footer/footer.component.js"></script>
-<!-- End Electron Jquery Compat -->
+<script src="core/modal/modal.component.js"></script>
+<!-- Electron JQuery Compatability --> 
 <script>if (window.module) module = window.module;</script>
 </body>
 </html>

@@ -4,3 +4,6 @@ app/backend/node_modules/*
 app/bower_components/
 node_modules/
 app/backend/node_modules/
+app/gexp
+app/gexp.exe
+app/_notes/

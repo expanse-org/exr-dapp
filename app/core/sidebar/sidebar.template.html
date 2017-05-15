@@ -1,33 +1,20 @@
 <div class="col-sm-3 sidebar">
-    <nav class="sidebar-nav">
-        <div class="sidebar-header">
-            <button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm">
-                <span class="sr-only">Toggle nav</span>
-            </button>
-            <a class="sidebar-brand img-responsive" href="dashboard">
-                <img src="public/img/explogo.png" align="center" />
-            </a>
-        </div>
-
-        <div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
-            <ul class="nav nav-pills nav-stacked">
-                <li class="nav-header">Expanse Bond dApp</li>
-                <li>
-                    <a ng-href="#!/dashboard">Overview</a>
-                </li>
-                <li>
-                    <a ng-href="#!/accounts" data-toggle="modal">Manage Accounts</a>
-                </li>
-                  <li>
-                    <a ng-href="#!/bonds" data-toggle="modal">Manage Bonds</a>
-                </li>
-                 <li>
-                    <a ng-href="#!/settings" data-toggle="modal">Settings</a>
-                </li>
-                <li class="nav-header">Info</li>
-                <li><a class="f11"> Current Block: {{currentBlock}} </a></li>
-            </ul>
-            <hr class="visible-xs m-t" />
-        </div>
-    </nav>
+  <nav class="sidebar-nav">
+    <div class="sidebar-header">
+      <button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm"><span class="sr-only">Toggle nav</span></button>
+      <a class="sidebar-brand img-responsive" href="dashboard"><img src="public/img/explogo.png" align="center" /></a>
+    </div>
+    <div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
+      <ul class="nav nav-pills nav-stacked">
+        <li class="nav-header">Expanse Bond dApp</li>
+        <li> <a ng-href="#!/dashboard">Overview</a></li>
+        <li> <a ng-href="#!/accounts">Manage Accounts</a></li>
+        <li> <a ng-href="#!/bonds">Manage Bonds</a></li>
+        <!-- <li> <a ng-href="#!/settings">Settings</a></li> -->
+        <li class="nav-header">Info</li>
+        <li><a class="f11">Current Block: {{$ctrl.ebsVars.currentBlock}}</a></li>
+      </ul>
+      <hr class="visible-xs m-t" />
+    </div>
+  </nav>
 </div>

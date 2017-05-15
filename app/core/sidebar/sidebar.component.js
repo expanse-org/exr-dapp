@@ -1,14 +1,13 @@
-'use strict';
-angular.
-  module('sidebar').
+(function () {
+  'use strict';
+  angular.
+  module('sidebar', []).
   component('sidebar', {
     templateUrl: 'core/sidebar/sidebar.template.html',
-    controller: function ($scope, $timeout, bondService) {
-		var getBlock = function() {
-			$scope.currentBlock=bondService.currentBlock();
-			console.log("Block Poll:" +$scope.currentBlock);
-			$timeout(getBlock, 10000);
-		};
-		getBlock();
+    controller: function (bondService, $localStorage) {
+      var vm = this;
+      vm.ebsVars = bondService.ebsVars;
+      vm.pending = $localStorage.pending;
     }
   });
+})();

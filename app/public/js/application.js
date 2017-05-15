@@ -123,4 +123,4 @@ var App = {
   }
 }
 
-App.init()
+App.init();

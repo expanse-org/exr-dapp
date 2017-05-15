@@ -131,7 +131,6 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
         var timer = function() { if(!connect()) $timeout(timer(), 1500); };
         $timeout(timer(), 5000);
       }
-      console.log('a');
     });
   };
   

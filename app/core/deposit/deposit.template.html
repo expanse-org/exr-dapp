@@ -10,14 +10,14 @@
     </div>
     <div class="form-group row text-center">
       <div class="col-xs-3 col-xs-offset-1 text-right"><strong>Balance:</strong></div>
-      <div class="col-sm-4 text-left"> {{$ctrl.account.balance}} </div>
+      <div class="col-sm-4 text-left"> {{$ctrl.account.balance}} EXP</div>
     </div>
     <div class="form-group row text-center">
       <div class="col-xs-3 col-xs-offset-1 text-right"><strong>EBS Balance:</strong></div>
-      <div class="col-sm-4  text-left"> {{$ctrl.account.bondBalance}} </div>
+      <div class="col-sm-4  text-left"> {{$ctrl.account.bondBalance}} EXP </div>
     </div>
     <div class="row form-group text-center" ng-show="$ctrl.account.balance>0">
-      <div class="col-xs-3 col-xs-offset-1 pt5 text-right"><strong>Amount:</strong></div>
+      <div class="col-xs-3 col-xs-offset-1 pt5 text-right">*<strong>Amount:</strong></div>
       <div class="col-xs-3">
         <input type="text" name="depositVal" class="form-control form-control-sm text-right" ng-model="$ctrl.depositVal" >
       </div>
@@ -28,5 +28,6 @@
     <div class="form-group row m-t-md text-center">
       <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.deposit()" >Deposit to EBS</button>
     </div>
+    <div class="col-md-12 fs-12 text-center"> * Deposit amounts must be whole number values, not decimals.</div>
   </form>
 </div>

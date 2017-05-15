@@ -225,7 +225,9 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
       if(semver.lt(ebsVars.version, web3.toUtf8(updater.latestDApp()[0]))) {
         console.log ('Upgrade Available');
         $('#modal').modal({"backdrop": "static"});
-        $('#modalPassword, #modalSend, #modalYes, #modalNo, #modalUpdate').hide();
+        $('#modalPassword, #modalSend').hide();
+        $('#modalUpdate').hide();
+        $('#modalYes, #modalNo').hide();
         $('#modalIgnore').show();
         $('#modalTitle').html("Update Available"); //or Required
         $('#modalDesc').html("An update for this dApp has been released. It is suggested you upgrade to the newest version immediately. The newest version is available at <a  target='_blank' href='https://github.com/expanse-org/bond-dapp/releases'>https://github.com/expanse-org/bond-dapp/releases</a>");
@@ -466,6 +468,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     if(!isAccountUnlocked(addr)){
       $('#modal').modal({"backdrop": "static"});
       $('#modalPassword, #modalSend').show();
+      $('#modalUpdate, #modalIgnore').hide();
       $('#modalYes, #modalNo').hide();
       $('#modalTitle').html("Account Locked");
       $('#modalDesc').html("The account "+ addr + " is currently locked. Please enter the password for this account to continue with this transaction.");
@@ -484,7 +487,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   
   var confirmModal = function(title, msg, fnc){
     $('#modal').modal({"backdrop": "static"});
-    $('#modalPassword, #modalSend', '#modalIgnore', '#modalUpdate').hide();
+    $('#modalPassword, #modalSend').hide();
+    $('#modalUpdate, #modalIgnore').hide();
     $('#modalYes, #modalNo').show();
     $('#modalTitle').html(title);
     $('#modalDesc').html(msg);
@@ -498,9 +502,10 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   var newAccount = function(conf, confpw){
     $('#modal').modal({"backdrop": "static"});
     $('#modalPassword, #modalSend').show();
-    $('#modalYes, #modalNo, #modalUpdate', '#modalIgnore').hide();
+    $('#modalUpdate, #modalIgnore').hide();
+    $('#modalYes, #modalNo').hide();
     
-    if(conf==true) { 
+    if(conf===true) { 
       $('#modalTitle').html("Confirm Password for New Account");
       $('#modalDesc').html("Please confirm the password you selected by re-entering it below.");
     } else {

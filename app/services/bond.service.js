@@ -484,7 +484,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   
   var confirmModal = function(title, msg, fnc){
     $('#modal').modal({"backdrop": "static"});
-    $('#modalPassword, #modalSend', '#modalIgnore', 'modalUpdate').hide();
+    $('#modalPassword, #modalSend', '#modalIgnore', '#modalUpdate').hide();
     $('#modalYes, #modalNo').show();
     $('#modalTitle').html(title);
     $('#modalDesc').html(msg);

@@ -20,8 +20,7 @@
             <button id="redeemMButton" name="redeemMButton" ng-if="(($ctrl.date.getTime()/1000) > bond.maturityTime) && (bond.active)" class="btn btn-primary" ng-click="$ctrl.redeem(bond.id, bond.address)" >Redeem Bond</button>
         </div>
       </div>
-      <div align="center" class="m-t hr-divider"></div>
-      <bond-transfer bond="bond"></bond-transfer>
+      <bond-transfer bond="bond" ng-if="bond.active"></bond-transfer>
     </li>
   </ul>
 </div>

@@ -21,100 +21,40 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     bondsBal:0,
     bondsTotal:0,
     bondsAvail:0,
-    isConnected:false
+    minBlock:616100,
+    isConnected:false,
+    isSyncing:false,
+    syncCurrentBlock:0,
+    syncHighestBlock:0
   };
   
-  ebsVars.isConnected = false;
   var gexpChild;
   var events;
-  var interval;
+  var updateInterval;
   var lastEventBlock = $localStorage.lastBlock;
   var contract = $localStorage.ebsABI ? web3.eth.contract($localStorage.ebsABI) : web3.eth.contract(Contract.abi);
   var bondContract = contract.at(Contract.address);
   var updaterCont = web3.eth.contract(versionContract.abi);
   var updater = updaterCont.at(versionContract.address); 
   
-  var addResultHistory = function(result, isFresh) {
-    var addressList=web3.eth.accounts; 
-    var xObj = {};
-    var xGrowl = {};
-    xObj.block = result.blockNumber;
-    if (typeof(result.args.BondId) != "undefined") xObj.bondId=result.args.BondId;
-    //console.log('addResultHistory('+isFresh+'): result.blockNumber:' + result.blockNumber + '$localStorage.lastBlock:'+$localStorage.lastBlock);
-    switch(result.event){
-      case "Buys":
-        xObj.address = result.args.User;
-        xObj.info = "Bond ID: " + result.args.BondId + " - Multiplier: " + result.args.Multiplier;
-        xObj.type = "Bond Purchase";
-        xGrowl.message="Your bond purchased has been successfully recorded on the blockchain.";
-        xGrowl.title = "Bond Purchase";
-      break;
-      case "RedeemCoupons":
-        xObj.address = result.args.User;
-        xObj.info = "Bond ID: "+result.args.BondId + " - Coupons: "+result.args.Coupons+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-        xObj.type = "Interest Redemption";
-        xGrowl.message = "Your coupon(s) has been redeemed.";
-        xGrowl.title = "Coupon Redemption";
-      break;
-      case "RedeemBonds":
-        xObj.address = result.args.User;
-        xObj.info = "Bond ID: "+result.args.BondId+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-        xObj.type = "Bond Redemption";
-        xGrowl.message = "Your bond has been redeemed.";
-        xGrowl.title = "Bond Redemption";
-      break;
-      case "Withdraws": 
-        xObj.address = result.args.User;
-        xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-        xObj.type = "EBS Withdraw";
-        xGrowl.message = "Your withdraw has been completed.";
-        xGrowl.title = "Bond Contract Withdraw";
-      break;
-      case "Transfers": 
-        var userIsFrom = false;
-        if(addressList.indexOf(result.args.TransferFrom) > -1) {
-          xObj.address = result.args.TransferFrom;
-          xObj.info = "Bond ID: " + result.args.BondId + " Transferred to " + result.args.TransferTo.substring(0,16) + "...";
-          xObj.type = "EBS Transfer Sent";
-          userIsFrom = true;
-        } 
-        if(addressList.indexOf(result.args.TransferTo) > -1) {
-          if(userIsFrom === true){ //User Is both from and to in xfer, add event to history for both accounts
-            if(!$localStorage.history[xObj.address]) $localStorage.history[xObj.address] = [];
-            if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
-        return ((JSON.stringify(elm) == JSON.stringify(xObj)) || (elm.tx == result.transactionHash));
-      }).length<1) $localStorage.history[xObj.address].push(JSON.parse(JSON.stringify(xObj)));
-            if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
-          } 
-          xObj.address = result.args.TransferTo;
-          xObj.info = "Bond ID: " + result.args.BondId + " Transferred from " + result.args.TransferFrom.substring(0,16) + "...";
-          xObj.type = "EBS Transfer Recv";
-        }
-        xGrowl.message = "Your transfer is complete and has been recorded on the blockchain."; 
-        xGrowl.title = "Bond Transfer";
-      break;
-      case "Deposits":
-        xObj.address = result.args.Sender;
-        xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-        xObj.type = "EBS Deposit";
-        xGrowl.message = "Your deposit has been completed."; 
-        xGrowl.title = "Bond Contract Deposit";
-      break;  
-    } 
-    
-    if(!$localStorage.history[xObj.address]) { $localStorage.history[xObj.address] = []; }
-    if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
-        return ((JSON.stringify(elm) == JSON.stringify(xObj)) || (elm.tx == result.transactionHash));
-      }).length<1) {
-        $localStorage.history[xObj.address].push(xObj);  
-        if(isFresh) growl.success(xGrowl.message, {title:xGrowl.title, ttl: -1});
-    } else { console.log('Duplicate History found.'); }
 
-    if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
+  /*  App Functions  */
   
+  var init = function() {
+    
+    if($localStorage.autoLaunch) {
+      console.log('autolaunching node');
+      launchNode();
+    } else {
+      connect(); 
+    }
+   
   };
   
+  var closeWin = function(){ remote.getCurrentWindow().close(); };
+    
   /*  Node/Connectivity Functions  */
+  
   var launchNode = function(){
     var localPath = __dirname + '/gexp';
     if(process.platform=="win32") localPath += ".exe";
@@ -134,70 +74,59 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     });
   };
   
-  var closeNode = function(){ if(gexpChild) gexpChild.kill();  };
-  
-  var closeWin = function(){ remote.getCurrentWindow().close(); };
+  var closeNode = function(){ if(gexpChild){ gexpChild.kill(); } };
   
 	var connect = function(){ 
 		console.log('Connecting to ' + $localStorage.connectionString);
 		growl.info("Attempting to connect to expanse node at " + $localStorage.connectionString+".", {title:"Connection Attempt", ttl: 9000}); 
     web3.setProvider(new web3.providers.HttpProvider($localStorage.connectionString));
-
 		if(web3.isConnected()){
-      //$rootScope.isConnected=true;
       ebsVars.isConnected = true;
 			growl.success("Connected to node: " + $localStorage.connectionString + ".", {title:"Connection Successful", ttl: 9000}); 
-      // we clear and rebuild history incase user added a new account, a more proper elegant ssolution next ver
-      $localStorage.history = {};
-      rebuildHistory(); 
-      events = bondContract.allEvents({fromBlock: ($localStorage.lastEvent+1), toBlock: 'latest'}, function (error, result) {
-        if (error) { 
-          console.log("Event Read Error: " + error);  
-        } else {
-          $localStorage.lastEvent = result.blockNumber;
-          var addressList=web3.eth.accounts; 
-          if(addressList.indexOf(result.args.Sender) > -1 || addressList.indexOf(result.args.User) > -1 || addressList.indexOf(result.args.TransferFrom) > -1 || addressList.indexOf(result.args.TransferTo) > -1){
-            if(result.blockNumber > $localStorage.lastBlock){
-              addResultHistory(result, true);  
-            } else {
-              //Past event, ignore unless rebuilding history index, must set watch before lastBlock
-              //console.log("Past Event(" + result.blockNumber + ">" + $localStorage.lastBlock + "): " + result.event + ", No notification required.");	
-            }
-          } else {
-            // Event for an address not available in wallet, [TODO: Add handling for watching multisig and remote wallets]
-          }
-          if(result.blockNumber>lastEventBlock) { 
-            $localStorage.lastBlock = lastEventBlock;
-            lastEventBlock = result.blockNumber;
-          }
-        }
-      });
-      updateBlock();
       $location.path('/overview');
       $timeout(function(){checkUpdates(false, true);}, 1600);
-      interval = $interval(updateBlock, 5000); 
+      sync();
+      updateInterval = $interval(updateBlock, 5000); //check if connected
 			return true;	
 		} else {
 			growl.error("Could not connect to expanse node at " + $localStorage.connectionString + ".", {title:"Connection Error",ttl: 9000}); 
 			console.log('Could NOT connect to: ' + $localStorage.connectionString);
-			return false;
+	    return false;
 		}
 	};
 
+  var sync = function(){
+    web3.eth.isSyncing(function(error, sync){
+        if(!error) {
+            if(sync === true) {   // sync started
+              ebsVars.isSyncing = true;
+              web3.reset(true);
+            } else if(sync) {    //sync obj exists = syncing
+              ebsVars.syncCurrentBlock = sync.currentBlock;
+              ebsVars.syncHighestBlock = sync.highestBlock;
+              console.log('Syncing: ' + sync.currentBlock + ' / ' + sync.highestBlock);
+              ebsVars.bondsTotal = bondContract.totalBonds();
+              ebsVars.bondsAvail = bondContract.limitBonds()-ebsVars.bondsTotal;
+              ebsVars.currentBlock = web3.eth.blockNumber;
+              ebsVars.bondsBal =  web3.fromWei(web3.eth.getBalance(Contract.address));
+              $localStorage.accounts = getAccounts();
+            } else {
+              ebsVars.isSyncing = false;
+              //watchHistory(); //is connected, and is over block min?
+            }
+        }
+    });
+  };
   var updateBlock = function(){ 
     var wasConnected = ebsVars.isConnected;
     var _isConnected = web3.isConnected();
     if(_isConnected === true){
-      //ebsVars.isConnected = _isConnected; // don't currently auto re-connect, let user check
-      ebsVars.bondsTotal = bondContract.totalBonds();
-      ebsVars.bondsAvail = bondContract.limitBonds()-ebsVars.bondsTotal;
-      ebsVars.currentBlock = web3.eth.blockNumber;
-      ebsVars.bondsBal =  web3.fromWei(web3.eth.getBalance(Contract.address));
-      $localStorage.accounts = getAccounts();
-     // if(wasConnected == false) $location.path('/accounts'); 
+      //ebsVars.isConnected = _isConnected; // don't currently set, no auto re-connect, let user check
+      // if(wasConnected == false) $location.path('/accounts'); // did we just reconnect after being dc'ed?
     } else {
-       ebsVars.isConnected = false;
-       if(wasConnected === true) { $interval.cancel(interval); console.log('reset');  web3.reset(); } //disconnected when previously connected
+       web3.reset();
+       ebsVars.isConnected = false; // show user connect view
+       if(wasConnected === true) { $interval.cancel(updateInterval);  } 
     }
   };
 
@@ -239,22 +168,9 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     }
   };
 
-  var addPending = function(address, type, info, tx, bondId){
-    var xObj = {};
-    if(!$localStorage.pending[address]) $localStorage.pending[address] = [];
-    if (bondId) xObj.bondId=bondId;
-    xObj.address=address;
-    xObj.type = type;
-    xObj.info = info; 
-    xObj.tx = tx;
-    $localStorage.pending[address].push(xObj);
-    console.log('pending ebs tx ['+type+'] added, tx: ' + tx);
-  };
-
 
   /*  Data and Conversion Functions  */
-  
-  // Determine how far from now a block is. (eg; 5s ago, 3 days ago, etc)
+
 	var blockToRelativeTime = function(blockNum){
 		var curBlock = web3.eth.blockNumber;
 		var seconds = 0;
@@ -277,7 +193,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 		if (interval > 1) return interval + " minutes";
 		return Math.floor(seconds) + " seconds";
 		
-	};
+	};  // Determine how far from now a block is. (eg; 5s ago, 3 days ago, etc)
 
   var blockToTimestamp = function(block){ return web3.eth.getBlock(block).timestamp; };
  
@@ -570,6 +486,9 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
       return true;
     }
   };
+  
+  
+  /*  History Functions  */
 
   var rebuildHistory = function () {
    var ev2 =  bondContract.allEvents({fromBlock: 600000, toBlock: $localStorage.lastEvent});
@@ -584,6 +503,123 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     }
    });  
   };
+  
+  var addResultHistory = function(result, isFresh) {
+    var addressList=web3.eth.accounts; 
+    var xObj = {};
+    var xGrowl = {};
+    xObj.block = result.blockNumber;
+    if (typeof(result.args.BondId) != "undefined") xObj.bondId=result.args.BondId;
+    //console.log('addResultHistory('+isFresh+'): result.blockNumber:' + result.blockNumber + '$localStorage.lastBlock:'+$localStorage.lastBlock);
+    switch(result.event){
+      case "Buys":
+        xObj.address = result.args.User;
+        xObj.info = "Bond ID: " + result.args.BondId + " - Multiplier: " + result.args.Multiplier;
+        xObj.type = "Bond Purchase";
+        xGrowl.message="Your bond purchased has been successfully recorded on the blockchain.";
+        xGrowl.title = "Bond Purchase";
+      break;
+      case "RedeemCoupons":
+        xObj.address = result.args.User;
+        xObj.info = "Bond ID: "+result.args.BondId + " - Coupons: "+result.args.Coupons+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+        xObj.type = "Interest Redemption";
+        xGrowl.message = "Your coupon(s) has been redeemed.";
+        xGrowl.title = "Coupon Redemption";
+      break;
+      case "RedeemBonds":
+        xObj.address = result.args.User;
+        xObj.info = "Bond ID: "+result.args.BondId+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+        xObj.type = "Bond Redemption";
+        xGrowl.message = "Your bond has been redeemed.";
+        xGrowl.title = "Bond Redemption";
+      break;
+      case "Withdraws": 
+        xObj.address = result.args.User;
+        xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+        xObj.type = "EBS Withdraw";
+        xGrowl.message = "Your withdraw has been completed.";
+        xGrowl.title = "Bond Contract Withdraw";
+      break;
+      case "Transfers": 
+        var userIsFrom = false;
+        if(addressList.indexOf(result.args.TransferFrom) > -1) {
+          xObj.address = result.args.TransferFrom;
+          xObj.info = "Bond ID: " + result.args.BondId + " Transferred to " + result.args.TransferTo.substring(0,16) + "...";
+          xObj.type = "EBS Transfer Sent";
+          userIsFrom = true;
+        } 
+        if(addressList.indexOf(result.args.TransferTo) > -1) {
+          if(userIsFrom === true){ //User Is both from and to in xfer, add event to history for both accounts
+            if(!$localStorage.history[xObj.address]) $localStorage.history[xObj.address] = [];
+            if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
+        return ((JSON.stringify(elm) == JSON.stringify(xObj)) || (elm.tx == result.transactionHash));
+      }).length<1) $localStorage.history[xObj.address].push(JSON.parse(JSON.stringify(xObj)));
+            if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
+          } 
+          xObj.address = result.args.TransferTo;
+          xObj.info = "Bond ID: " + result.args.BondId + " Transferred from " + result.args.TransferFrom.substring(0,16) + "...";
+          xObj.type = "EBS Transfer Recv";
+        }
+        xGrowl.message = "Your transfer is complete and has been recorded on the blockchain."; 
+        xGrowl.title = "Bond Transfer";
+      break;
+      case "Deposits":
+        xObj.address = result.args.Sender;
+        xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+        xObj.type = "EBS Deposit";
+        xGrowl.message = "Your deposit has been completed."; 
+        xGrowl.title = "Bond Contract Deposit";
+      break;  
+    } 
+    
+    if(!$localStorage.history[xObj.address]) { $localStorage.history[xObj.address] = []; }
+    if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
+        return ((JSON.stringify(elm) == JSON.stringify(xObj)) || (elm.tx == result.transactionHash));
+      }).length<1) {
+        $localStorage.history[xObj.address].push(xObj);  
+        if(isFresh) growl.success(xGrowl.message, {title:xGrowl.title, ttl: -1});
+    } else { console.log('Duplicate History found.'); }
+
+    if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
+  
+  };
+  
+  var watchHistory = function () {
+    // we clear and rebuild history incase user added a new account, a more proper elegant solution next ver
+    $localStorage.history = {};
+    rebuildHistory(); 
+    events = bondContract.allEvents({fromBlock: ($localStorage.lastEvent+1), toBlock: 'latest'}, function (error, result) {
+        if (error) { 
+          console.log("Event Read Error: " + error);  
+        } else {
+          $localStorage.lastEvent = result.blockNumber;
+          var addressList=web3.eth.accounts; 
+          if(addressList.indexOf(result.args.Sender) > -1 || addressList.indexOf(result.args.User) > -1 || addressList.indexOf(result.args.TransferFrom) > -1 || addressList.indexOf(result.args.TransferTo) > -1){
+            if(result.blockNumber > $localStorage.lastBlock){
+              addResultHistory(result, true);  
+            }
+          } else {
+            // Event for an address not available in wallet, [TODO: Add handling for watching multisig and remote wallets]
+          }
+          if(result.blockNumber>lastEventBlock) { 
+            $localStorage.lastBlock = lastEventBlock;
+            lastEventBlock = result.blockNumber;
+          }
+        }
+      });
+  };
+  
+  var addPending = function(address, type, info, tx, bondId){
+    var xObj = {};
+    if(!$localStorage.pending[address]) $localStorage.pending[address] = [];
+    if (bondId) xObj.bondId=bondId;
+    xObj.address=address;
+    xObj.type = type;
+    xObj.info = info; 
+    xObj.tx = tx;
+    $localStorage.pending[address].push(xObj);
+    console.log('pending ebs tx ['+type+'] added, tx: ' + tx);
+  };
  
   $window.onbeforeunload = function() {
     if(gexpChild){closeNode(); }
@@ -592,15 +628,6 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
       return false;*/
   };
   
-  var init = function() {
-    if($localStorage.autoLaunch) {
-      console.log('autolaunching node');
-      launchNode();
-    } else {
-      connect(); 
-    }
-  };
-
   return {
     ebsVars: ebsVars,
     init: init,

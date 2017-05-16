@@ -86,6 +86,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
       $location.path('/overview');
       $timeout(function(){checkUpdates(false, true);}, 1600);
       syncUpdate();
+      watchHistory();
       updateInterval = $interval(updateBlock, 5000); //check if connected
 			return true;	
 		} else {
@@ -117,11 +118,12 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
             } else {
               ebsVars.isSyncing = false;
               ebsVars.currentBlock = web3.eth.blockNumber;
-              //watchHistory(); //is connected, and is over block min?
+              //if(ebsVars.currentBlock>ebsVars.minBlock) {  }
             }
         }
     });
   };
+  
   var updateBlock = function(){ 
     var wasConnected = ebsVars.isConnected;
     var _isConnected = web3.isConnected();

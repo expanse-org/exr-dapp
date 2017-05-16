@@ -85,7 +85,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 			growl.success("Connected to node: " + $localStorage.connectionString + ".", {title:"Connection Successful", ttl: 9000}); 
       $location.path('/overview');
       $timeout(function(){checkUpdates(false, true);}, 1600);
-      sync();
+      syncUpdate();
       updateInterval = $interval(updateBlock, 5000); //check if connected
 			return true;	
 		} else {
@@ -95,7 +95,12 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 		}
 	};
 
-  var sync = function(){
+  var syncUpdate = function(){
+    ebsVars.currentBlock = web3.eth.blockNumber;
+    ebsVars.bondsTotal = bondContract.totalBonds();
+    ebsVars.bondsAvail = bondContract.limitBonds()-ebsVars.bondsTotal;
+    ebsVars.bondsBal =  web3.fromWei(web3.eth.getBalance(Contract.address));
+    $localStorage.accounts = getAccounts();
     web3.eth.isSyncing(function(error, sync){
         if(!error) {
             if(sync === true) {   // sync started
@@ -107,11 +112,11 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
               console.log('Syncing: ' + sync.currentBlock + ' / ' + sync.highestBlock);
               ebsVars.bondsTotal = bondContract.totalBonds();
               ebsVars.bondsAvail = bondContract.limitBonds()-ebsVars.bondsTotal;
-              ebsVars.currentBlock = web3.eth.blockNumber;
-              ebsVars.bondsBal =  web3.fromWei(web3.eth.getBalance(Contract.address));
+              ebsVars.bondsBal = web3.fromWei(web3.eth.getBalance(Contract.address));
               $localStorage.accounts = getAccounts();
             } else {
               ebsVars.isSyncing = false;
+              ebsVars.currentBlock = web3.eth.blockNumber;
               //watchHistory(); //is connected, and is over block min?
             }
         }

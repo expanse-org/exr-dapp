@@ -1,0 +1,26 @@
+<div align="center" class="hr-divider" style="margin:10px;"></div>
+<div class="row"  style="padding:10px 0px 0px;">
+  <h5 class="text-center">Account History</h5>
+</div>
+<div class="row" style="margin-bottom:7px;">
+  <table class="mTable" align="center" >
+    <tr class="row" href="#" >
+      <th>Block</th>
+      <th>Date/Time</th>
+      <th>Type</th>
+      <th>Information</th>
+    </tr>
+    <tr class="row" href="#" ng-click="$ctrl.showDetail(hEvent)" ng-repeat="hEvent in $ctrl.history[$ctrl.account.address]">
+      <td class="text-primary">{{hEvent.block}}</td>
+      <td>{{$ctrl.blockToTimestamp(hEvent.block)*1000 | date:"short"}}</td>
+      <td>{{hEvent.type}}</td>
+      <td>{{hEvent.info}}</td>
+    </tr>
+    <tr class="row" href="#" ng-click="$ctrl.showDetail(hEvent)" ng-repeat="hEvent in $ctrl.pending[$ctrl.account.address]">
+      <td class="text-warning">(pending)</td>
+      <td>(pending)</td>
+      <td>{{hEvent.type}}</td>
+      <td>{{hEvent.info}}</td>
+    </tr>
+  </table>
+</div>

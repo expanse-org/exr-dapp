@@ -1,74 +1,67 @@
-'use strict';
-
-// Declare app level module which depends on views, and components
-var app = angular.module('bondApp', [
+(function () {
+  'use strict';
+  var app = angular.module('bondApp', [
     'ngAnimate',
     'ngRoute',
-	'angular-growl',
-	'ngStorage',
+    'ngStorage',
+    'angular-growl',
+    'modal',
+    'agreement',
+    'connect',
+    'accounts',
+    'accountHistory',
+    'accountList',
+    'bonds',
+    'bondList',
+    'bondForm',
     'bondService',
-	'agreement',
-    'sidebar',
+    'bondTransfer',
     'dashhead',
     'dashboard',
-	'footer',
-	'connect',
-	'accounts',
-	'accountList',
-	'deposit',
-	'about',
-    'bonds',
-	'bondList',
-    'bondForm'
-]).
-
-config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
+    'deposit',
+    'footer',
+    'sidebar',
+    'syncmodal'
+  ]).config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
     $locationProvider.hashPrefix('!');
-    $routeProvider.
-    when('/dashboard', {
-        template: '<dashboard></dashboard>'
-    }).
-	when('/agreement', {
-        template: '<agreement></agreement>'
-    }).
-    when('/accounts', {
-        template: '<accounts></accounts>'
-    }).
-	when('/accounts/:account', {
-        template: '<accounts></accounts>'
-    }).
-    when('/bonds', {
-        template: '<bonds></bonds>'
-    }).
-	when('/deposit/:account', {
-        template: '<deposit></deposit>'
-    }).
-	when('/bond/:account', {
-        template: '<bond-form></bond-form>'
-    }).
-    otherwise({
-        redirectTo: '/dashboard'
+    $locationProvider.html5Mode(false);
+    $routeProvider.when('/dashboard', {
+      template: '<dashboard></dashboard>'
+    }).when('/agreement', {
+      template: '<agreement></agreement>'
+    }).when('/accounts', {
+      template: '<accounts></accounts>'
+    }).when('/accounts/:account', {
+      template: '<accounts></accounts>'
+    }).when('/bonds', {
+     template: '<bonds></bonds>'
+    }).when('/deposit/:account', {
+     template: '<deposit></deposit>'
+    }).when('/bond/:account', {
+     template: '<bond-form></bond-form>'
+    }).otherwise({
+      redirectTo: '/dashboard'
     });
-
-}]).directive('ngConfirmClick', [
-    function(){
-        return {
-            link: function (scope, element, attr) {
-                var msg = attr.ngConfirmClick+"\nAre you sure you would like to continue?" || "Are you sure?";
-                var clickAction = attr.confirmedClick;
-                element.bind('click',function (event) {
-                    if ( window.confirm(msg) ) {
-                        scope.$eval(clickAction)
-                    }
-                });
-            }
-        };
-}]).controller('bondAppCtrl', function ($scope,$localStorage,bondService) {
-if(!$localStorage.agreementConfirm) $localStorage.agreementConfirm=false;
- $scope.hasConfirmed=$localStorage.agreementConfirm;
- if(!bondService.isConnected()) {
-	 $scope.connected=false;
- } else $scope.connected=true;
-}).config(['growlProvider', function(growlProvider) {
-  growlProvider.onlyUniqueMessages(false);
-}]);;
+  }]).config(['growlProvider', function(growlProvider) {
+    growlProvider.onlyUniqueMessages(true);
+    growlProvider.globalDisableCountDown(true);
+  }]).controller('bondAppCtrl', function ($rootScope,$scope,$localStorage,bondService) {
+    // App Initialization -- Load default values / generate objects in localStorage if they do not exist. 
+    if(!$localStorage.connectionString) $localStorage.connectionString = "http://localhost:9656";
+    if(!$localStorage.launchArgs) $localStorage.launchArgs = "--rpc --rpcaddr localhost"
+    if(!$localStorage.history) $localStorage.history = {};
+    if(!$localStorage.accounts) $localStorage.accounts = {};
+    if(!$localStorage.pending) $localStorage.pending = {};
+    if(!$localStorage.autoLaunch) $localStorage.autoLaunch = false;
+    if(!$localStorage.agreementConfirm) $localStorage.agreementConfirm=false;
+    if(!$localStorage.lastBlock || $localStorage.lastBlock<600000) $localStorage.lastBlock=600000; //Earliest block a contract tx 
+    if(!$localStorage.lastEvent || $localStorage.lastEvent<600000) $localStorage.lastEvent=600000;
+    var vm = this;
+    vm.$storage=$localStorage;
+    vm.ebsVars = bondService.ebsVars;
+    vm.$onInit = function () {
+      console.log('-- app controll init --');
+      bondService.init();
+    };
+  });
+})();

@@ -1,12 +1,25 @@
 <dashhead title="Overview Dashboard"></dashhead>
-<!-- <top-three candidates="topThreeCandidates" totalVotes="totalVotes"></top-three> 
-<voting-events events="voteEvents"></voting-events>-->
 <div class="hr-divider m-b-sm">
-    <h3 class="hr-divider-content hr-divider-heading">Summary</h3>
+  <h3 class="hr-divider-content hr-divider-heading">Overview</h3>
 </div>
-<div class="row m-t-md text-center">Welcome to the Expanse Bond dApp.</div>
+
 <div class="row m-t-md text-center">
-<pre class="col-md-6 col-xs-10 col-xs-offset-1 col-md-offset-3">{{$ctrl.accounts}} Accounts detected in your wallet.
+<pre class="col-xs-8 col-xs-offset-2">
+
+███████╗██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝
+█████╗  ██████╔╝███████╗
+██╔══╝  ██╔══██╗╚════██║
+███████╗██████╔╝███████║
+╚══════╝╚═════╝ ╚══════╝
+
+Welcome to the Expanse Bond System dApp.
+
+Issued Bonds: {{$ctrl.ebsVars.bondsTotal}} | Bonds Available: {{$ctrl.ebsVars.bondsAvail}}
+Total EBS Assets: {{$ctrl.ebsVars.bondsBal}} EXP
+
+{{$ctrl.accounts}} Accounts detected in your wallet.
 {{$ctrl.bonds}} Bonds detected owned by these accounts.
+
 </pre>
 </div>

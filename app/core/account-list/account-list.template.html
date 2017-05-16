@@ -1,18 +1,32 @@
 <div class="row">
-<div class="col-md-12">
-    <div class="list-group">
-        <h4 class="list-group-header">Your Accounts</h4>
-        <div class="list-group-item slide" href="#" ng-if="$ctrl.accounts != 'undefined'" ng-repeat="account in $ctrl.accounts">
-            <div class="row"><div class="col-sm-12 text-center"><strong>Address:</strong> {{account.address}} [{{account.unlocked ? "Unlocked" : "Locked"}}]</div></div>
-            <div class="row">
-                <div class="col-md-6 col-sm-12 text-center"><strong>Account Balance:</strong> {{account.balance}} EXP</div>
-                <div class="col-md-6 col-sm-12 text-center"><strong>Bond Balance:</strong> {{account.bondBalance}} EXP</div>
-            </div>
-			<deposit ng-show="account.balance>0" account="account"></deposit>
+  <div class="col-md-12">
+    <div class="list-group" ng-if="$ctrl.$storage.accounts != 'undefined' && $ctrl.$storage.accounts.length>=1" ng-repeat="account in $ctrl.$storage.accounts">
+      <div class="list-group-header text-center" style="color:#eee;">
+       Address: <img src="public/img/clipboard.png" data-clipboard-text="{{account.address}}" class="clipb" width="16" height="16" alt="Copy to Clipboard" /> {{account.address}} [{{account.unlocked ? "Unlocked" : "Locked"}}]</div>
+      <div class="list-group-item slide" href="#">
+        <div class="row">
+          <div class="col-md-6 col-sm-12 text-center"><strong>Account Balance:</strong> {{account.balance}} EXP</div>
+          <div class="col-md-6 col-sm-12 text-center"><strong>EBS Balance:</strong> {{account.bondBalance}} EXP</div>
         </div>
-        <div class="list-group-item slide" href="#" ng-if="$ctrl.accounts == 'undefined'">
-            <div class="row"><div class="col-md-12"><strong>No accounts found.</strong></div></div>
+        <div ng-show="account.balance>0 || $ctrl.account.bondBalance>0" align="center" class="hr-divider" style="margin:10px;"></div>
+        <div ng-show="account.balance>0" class="row" style="padding:15px 20px 0px;">
+          <div class="col-sm-4 text-center"> <a ng-href="#!/deposit/{{account.address}}">
+            <button id="depositButton"  name="depositButton" class="btn btn-primary" ng-href="/" >Deposit to EBS</button>
+            </a></div>
+          <div class="col-sm-4 text-center" ng-show="account.bondBalance>0"> <a ng-href="#!/bond/{{account.address}}">
+            <button id="buyButton" name="buyButton" class="btn btn-primary" >Create New Bond</button>
+            </a> </div>
+          <div class="col-sm-4 text-center" ng-show="account.bondBalance>0">
+            <button id="withdrawButton" name="withdrawButton" class="btn btn-primary" ng-click="$ctrl.withdraw(account)">Withdraw Balance</button>
+          </div>
         </div>
+        <account-history ng-show="$ctrl.$storage.history[account.address]" account="account"></account-history>
+      </div>
     </div>
-</div>
+    <div class="list-group"  href="#" ng-if="$ctrl.$storage.accounts == 'undefined' || $ctrl.$storage.accounts.length<1">
+      <h4 class="list-group-header pad-v-20 text-center">No accounts found.<br />
+        <br />
+        <a ng-click="$ctrl.createAccount()">Create an Account</a></h4>
+    </div>
+  </div>
 </div>

@@ -1,11 +1,15 @@
-'use strict';
-angular.
-module('dashboard').
-component('dashboard', {
-    controller: function(bondService, $scope, $localStorage) {
-		this.accounts=bondService.getAccounts().length;
-		this.bonds=bondService.listBonds().length;
-		this.transfers=1;
-    },
-    templateUrl: 'core/dashboard/dashboard.template.html'
-});
+(function () {
+  'use strict';
+  angular.
+  module('dashboard',[]).
+  component('dashboard', {
+      controller: function(bondService) {
+        var vm = this;
+        vm.accounts = bondService.getAccounts().length;
+        vm.bonds = bondService.listBonds().length;
+        vm.ebsVars =  bondService.ebsVars;
+        vm.transfers = 1;
+      },
+      templateUrl: 'core/dashboard/dashboard.template.html'
+  });
+})();

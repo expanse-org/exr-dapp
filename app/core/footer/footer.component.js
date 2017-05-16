@@ -1,9 +1,12 @@
-'use strict';
-angular.
-module('footer').
-component('footer', {
+(function () {
+  'use strict';
+  angular.
+  module('footer', []).
+  component('footer', {
     templateUrl: 'core/footer/footer.template.html',
-    controller: function() {
-        this.version =  require('./package.json').version;
+    controller: function(bondService) {
+      var vm = this;
+      vm.version = bondService.ebsVars.version;
     }
-});
+  });
+})();

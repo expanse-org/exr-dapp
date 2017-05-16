@@ -1,25 +1,39 @@
-<div class="hr-divider m-b-sm">
+<div class="hr-divider">
   <h3 class="hr-divider-content hr-divider-heading">Connection to an Expanse Node Required</h3>
 </div>
 <div class="row m-t-md text-center">
-  <p>In order to interact with the Expanse network, this dApp must be connected to an Expanse node over it's RPC interface.  For new users it is suggested practice to connect to a local node running on the same system as the dApp. Alternatively, you may connect to a remote node on an internal or external network. The suggested software to run an expanse node is <a target="_blank" class="open-in-browser" href="https://github.com/expanse-org/go-expanse/releases">gexp</a> or <a target="_blank" class="open-in-browser" href="https://github.com/ethcore/parity/releases">parity</a>. Please be sure you research and understand the security best practices related to configuring and running a node or localized wallet in order to ensure the security of your wallet. It is suggested you only provide access to the RPC interface over localhost so only localized dApps can interface with it, although please employ caution as locally viewed websites and dApps may still potentially access it.</p>
-  <p> As an additional note, while not required to view your accounts and bonds, in order to deposit, withdraw, and transfer the account acting must be unlocked at the time of action. More information can be found in the <a target="_blank" class="open-in-browser" href="https://github.com/expanse-org/go-expanse/wiki/Managing-your-accounts">Managing Accounts</a> section of the users guide.</p>
+  <h4>Could not Connect to Expanse Node</h4>
+  <p class="col-md-12">In order to interact with the Expanse network, this dApp must be connected to a secure Expanse node that is in sync with the current Expanse blockchain. You may connect to an external node, or run a node locally. If you choose to run a local node and have not run an Expanse node before, or your node has not been run recently, it will need to synchronize to the blockchain, this process may take up to an hour and you will be informed as it progresses. </p>
 </div>
 <div class="row m-t text-center">
-  <div class="col-md-5 col-md-offset-2 col-sm-12">Example gexp configuration with local RPC interface:</div>
-  <div class="col-md-3 col-sm-12 no-pad"> <code class="text-justify codepane">gexp --rpc --rpcaddr localhost</code></div>
-</div>
-<div class="row m-t-md text-center">
-  <div class="col-md-12"> Please verify or enter the connection string for the node you wish to connect to below. </div>
-</div>
-<div class="row m-t-md text-center">
-  <fieldset class="col-md-6 col-xs-8 col-md-offset-3 col-xs-offset-2">
-    <div class="m-t col-xs-4  col-xs-offset-1 no-pad"><strong>Connection Path:</strong></div>
-    <div class="m-t col-xs-6 no-pad">
-      <input class="form-control" type="text" name="editConnectionString" id="editConnectionString" ng-show="$ctrl.editing"  ng-value="$localStorage.connectionString" />
-      <span ng-hide="$ctrl.editing" ng-bind="$localStorage.connectionString">$connectionString</span> <a ng-hide="$ctrl.editing" ng-click="$ctrl.configure();">[Configure]</a> </div>
+  <fieldset class="col-sm-4 col-sm-offset-1">
+    <h4 class="m-t m-b-sm">Launch a Node</h4>
+    <div class="hr-divider"></div>
+    <div class="m-t-15 col-xs-12 fs-12">This will launch an embedded gexp node running in the background on your system.</div>
+    <div class="m-t-15 col-xs-4" ng-show="$ctrl.editingLaunch"><strong>Launch Args:</strong></div>
+    <input class="form-control m-t-15 col-xs-6 no-pad" type="text" name="editLaunchArgs" id="editLaunchArgs" ng-show="$ctrl.editingLaunch"  ng-value="$ctrl.$storage.launchArgs" />
+    <div class="col-sm-12 m-t-sm"><a ng-hide="$ctrl.editingLaunch" ng-click="$ctrl.configureLaunch();">[Advanced Configuration]</a></div>
+    <div class="m-t col-xs-12">
+      <button id="launchSubmit" name="submit" class="btn btn-primary" ng-click="$ctrl.launchNode()" >Launch Node</button>
+    </div>
+    <div class="col-xs-12 m-b-sm no-pad m-t-sm text-center fs-12" style="vertical-align:middle;" >
+      <input type="checkbox" id="autoLaunch" ng-model="$ctrl.$storage.autoLaunch">
+      <label for="autoLaunch" style="vertical-align:middle;font-weight:normal;margin-bottom:10px;"> Always launch gexp at EBS startup. </label></div>
+  </fieldset>
+  <fieldset class="col-sm-4 col-sm-offset-1">
+    <h4 class="m-t">Connect to a Node</h4>
+    <div class="m-t-15 col-xs-12 fs-12">This will connect to a local or remote node over RPC.</div>
+    <div class="hr-divider"></div>
+    <div class="m-t-15 col-xs-4  col-xs-offset-1 no-pad"><strong>Node Path:</strong></div>
+    <div class="m-t-15 col-xs-6 no-pad">
+      <input class="form-control" type="text" name="editConnectionString" id="editConnectionString" ng-show="$ctrl.editingConnect"  ng-value="$ctrl.$storage.connectionString" />
+      <span ng-hide="$ctrl.editingConnect" ng-bind="$ctrl.$storage.connectionString">$connectionString</span> </div>
+    <div class="col-sm-12"> <a ng-hide="$ctrl.editingConnect" ng-click="$ctrl.configureConnect();">[Configure]</a> </div>
     <div class="m-t col-xs-12 m-b">
-      <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.connect()" >Check Connection</button>
+      <button id="checkSubmit" name="submit" class="btn btn-primary" ng-click="$ctrl.connect()" >Check Connection</button>
     </div>
   </fieldset>
+</div>
+<div class="row m-t-md text-center">
+  <div class="col-md-12 fs-12"> *Please be sure you research and understand the security best practices related to configuring and running a node or localized wallet in order to ensure the security of your accounts. Be careful to understand the implications of whatever settings and access methods you use, including the defaults, prior to using this software. Please employ caution as locally viewed websites and dApps may still potentially interface with your node. If connected to a remote node, please be sure it is a secure connection to a secure node in which you have management over the accounts and untrusted parties do not have any form of access. </div>
 </div>

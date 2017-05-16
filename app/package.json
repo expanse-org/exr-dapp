@@ -1,6 +1,6 @@
 {
   "name": "expanse-bond-dapp",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Expanse Bond Technology Demonstration",
   "main": "main.js",
   "devDependencies": {
@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron-debug": "^1.1.0"
+    "electron-debug": "^1.1.0",
+    "semver": "^5.3.0",
+    "spawn-args": "^0.2.0"
   }
 }

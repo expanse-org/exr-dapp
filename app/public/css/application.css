@@ -1,106 +1,194 @@
 /* global body padding */
 body {
-  padding-top:    20px;
+  padding-top: 20px;
   padding-bottom: 20px;
 }
 
 @media (min-width: 768px) {
   body {
-    padding-top:    50px;
+    padding-top: 50px;
     padding-bottom: 50px;
   }
 }
-
-
 /* global spacing overrides */
-h1, h2, h3, h4, h5, h6,
-.h1, .h2, .h3, .h4, .h5, .h6 {
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   margin-top: 0;
 }
 hr {
   margin-top: 30px;
   margin-bottom: 30px;
 }
-
-.navbar-fixed-top,
-.navbar-static-top {
+.navbar-fixed-top, .navbar-static-top {
   border-bottom: 0;
 }
-fieldset{border: 1px solid grey;}
-#depositVal{}
-.holder {
-    position: relative;
+fieldset {
+  border: 1px solid grey;
 }
-.f11{
- font-size:11px;	
+#depositVal {
+}
+.holder {
+  position: relative;
+}
+.f11 {
+  font-size: 11px;
 }
 .holder label {
-    position: absolute;
-    right: 25px;
-    top: 7px;
-    width: 20px;
-	color: #ccc;
+  position: absolute;
+  right: 25px;
+  top: 7px;
+  width: 20px;
+  color: #ccc;
 }
-
 .holder input {
-    padding: 2px 50px 2px 2px;
-	margin:0 10px;
+  padding: 2px 50px 2px 2px;
+  margin: 0 10px;
 }
-
-
 .growl-message {
-	font-weight:normal;
+  font-weight: normal;
 }
-.alert-success{
-	color:#3c763d !important;
-	background-color:#dff0d8 !important;
-	border-color: #d6e9c6; !important;
+.alert-success {
+  color: #3c763d !important;
+  background-color: #dff0d8 !important;
+  border-color: #d6e9c6 !important;
 }
-.alert-warning{
-	color: #8a6d3b;
-	background-color: #fcf8e3;
-	border-color: #faebcc;
+.alert-warning {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border-color: #faebcc;
 }
-.alert-info{
-	color: #31708f;
-	background-color: #d9edf7;
-	border-color: #bce8f1;
+.alert-info {
+  color: #31708f;
+  background-color: #d9edf7;
+  border-color: #bce8f1;
 }
-.alert-error{
-	color:#a94442 !important;
-	background-color:#f2dede !important;
-	border-color:#ebccd1 !important;
+.alert-error {
+  color: #a94442 !important;
+  background-color: #f2dede !important;
+  border-color: #ebccd1 !important;
 }
-pre, code {background-color:#222;color:#ccc; border: 1px solid #999;}
-.docpane{ white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word; 
-	word-break: keep-all;
-	
-	height:400px;
-	
-   overflow:auto;
-	 }
-	 .codepane{ white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word; 
-	word-break: keep-all;
-	padding:5px 15px;
-
-   overflow:auto;
-	 }
-	 
-	 .no-pad  {
-    padding-right:0 !important;
-    padding-left:0  !important;
+pre, code {
+  background-color: #222;
+  color: #ccc;
+  border: 1px solid #999;
+}
+.docpane {
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;
+  word-break: keep-all;
+  height: 400px;
+  overflow: auto;
+}
+.codepane {
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;
+  word-break: keep-all;
+  padding: 5px 15px;
+  overflow: auto;
+}
+.no-pad {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
 }
 .vcenter {
-    display: inline-block;
-    vertical-align: middle;
-    float: none;
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
 }
-.pt5{padding-top:5px;}
+.pt5 {
+  padding-top: 5px;
+}
+.modal {
+  text-align: center;
+  padding: 0!important;
+}
+.modal:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -4px;
+}
+.modal-dialog {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+}
+.modal-header {
+  color: #ccc;
+  text-align: center;
+}
+.modal-body {
+  color: black;
+}
+.modal-txt {
+  padding: 0px 20px 10px;
+  text-align: center;
+}
+#pwTxSend {
+  margin-left: 5px;
+}
+.mTable td {
+  border: 1px solid #434857;
+  text-align: center;
+  font-size: 12px;
+  padding: 0px 15px;
+  word-wrap: break-word
+}
+.mTable th {
+  border: 1px solid #434857;
+  text-align: center;
+  padding: 0px 15px;
+}
+.growl-message {
+  word-wrap: break-word !important;
+  cursor: text;
+}
+.fs-12 {
+  font-size: 12px;
+}
+.m-t-sm {
+  margin-top: 10px !important;
+}
+.m-b-sm {
+  margin-bottom: 10px !important;
+}
+.m-t-15 {
+  margin-top: 15px !important;
+}
+.m-b-15 {
+  margin-bottom: 15px !important;
+}
+.pad-v-20 {
+  padding: 20px 0px;
+}
+a {
+  cursor: pointer !important;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+.closex{
+  opacity: 0.5;
+  filter: alpha(opacity=50);font-size:13px;color:#fff;font-weight:normal;text-shadow:none;}
+  .codepre{  display: block;
+  padding: 20px;
+  margin:0px;
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  background-color: #222;
+  color: #ccc;
+  border: 1px solid #999;
+  }
+.sidebar-brand {margin-left:25px;}
+.clipb{margin-bottom:5px;margin-left:4px;cursor:pointer;}

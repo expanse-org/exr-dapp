@@ -13,6 +13,7 @@
     "angular-chart.js": "^1.0.3",
     "angular-growl-v2": "^0.7.9",
     "ngstorage": "^0.3.11",
-    "web3": "web3-expanse#0.16.0"
+    "web3": "web3-expanse#0.16.0",
+    "clipboard": "^1.6.1"
   }
 }

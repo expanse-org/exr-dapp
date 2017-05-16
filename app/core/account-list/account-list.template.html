@@ -1,7 +1,8 @@
 <div class="row">
   <div class="col-md-12">
     <div class="list-group" ng-if="$ctrl.$storage.accounts != 'undefined' && $ctrl.$storage.accounts.length>=1" ng-repeat="account in $ctrl.$storage.accounts">
-      <div class="list-group-header text-center" style="color:#eee;">Address: {{account.address}} [{{account.unlocked ? "Unlocked" : "Locked"}}]</div>
+      <div class="list-group-header text-center" style="color:#eee;">
+       Address: <img src="public/img/clipboard.png" data-clipboard-text="{{account.address}}" class="clipb" width="16" height="16" alt="Copy to Clipboard" /> {{account.address}} [{{account.unlocked ? "Unlocked" : "Locked"}}]</div>
       <div class="list-group-item slide" href="#">
         <div class="row">
           <div class="col-md-6 col-sm-12 text-center"><strong>Account Balance:</strong> {{account.balance}} EXP</div>

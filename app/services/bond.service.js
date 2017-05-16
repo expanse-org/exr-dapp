@@ -9,6 +9,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   const path = require('path');
   const web3 = new Web3();
   const net = require('net');
+  var clipboard = new Clipboard('.clipb');
   
   var ebsVars = {
     version: require('./package.json').version,
@@ -197,8 +198,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   };
 
 
-
   /*  Data and Conversion Functions  */
+  
   var secToRelativeTime = function(seconds) {
   
 		var interval = Math.floor(seconds / 31536000);
@@ -281,8 +282,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 			} else {
         $location.path('/accounts');
 				growl.info("Your deposit of " + amount + " to Bond Contract for " + address + " has been submitted, please be patient as it may take several minutes to be included in a block.", {title:"Bond Contract Deposit", ttl: -1});
-				console.log('Deposit TX ID: ' + result);
-				growl.warning('Deposit TX ID: ' + result, {ttl: -1});
+				console.log('Deposit TX ID: ' + result); 
+				growl.warning('Deposit TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
         addPending(address, "EBS Deposit", "Amount: " + amount + " EXP", result, null);
 			}
 		});
@@ -298,8 +299,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 				growl.error(err.message, {title:"Withdraw Error", ttl: -1}); 
 			} else {
 				growl.info("Your Withdraw request for balance belonging to "+address+" has been submitted, please be patient as it may take several minutes to be included in a block.", {title:"Bond Contract Withdraw", ttl: -1});
-				console.log('Withdraw TX ID: '+result);
-				growl.warning('Withdraw TX ID: '+result, {ttl: -1});
+				console.log('Withdraw TX ID: ' + result);
+				growl.warning('Withdraw TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
         addPending(address, "EBS Withdraw", "Amount: " + getAccount(address).bondBalance + " EXP", result, null);
 			}
 		});
@@ -316,7 +317,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
         $location.path('/accounts');
 				growl.info("Your bond purchase has been submitted for account " + address + " with Multiplier: " + multiplier + " Please be patient as it may take several minutes to be included in a block.", {title:"Bond Purchase", ttl: -1});
 				console.log('Bond Purchase TX ID: ' + result);
-				growl.warning('Bond Purchase TX ID: ' + result, {ttl: -1});
+				growl.warning('Bond Purchase TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
         addPending(address, "Bond Purchase", "Bond ID: (pending) - Multiplier: " + multiplier, result, null);
 			}
 		});
@@ -333,7 +334,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
         $location.path('/accounts');
 				growl.info('Redeeming mature coupons for Bond ID: ' + bondId + ' owned by account: ' + address + ". Please be patient as it may take several minutes to be included in a block.", {title:"Coupon Redemption", ttl: -1});
 				console.log('CouponRedeem TX ID:' + result);
-				growl.warning('CouponRedeem TX ID: ' + result, {ttl: -1});
+				growl.warning('CouponRedeem TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
         var xBond = fetchBond(bondId);
         var timePassed = web3.eth.getBlock(xBond.created).timestamp - (xBond.nextRedemption - ebsVars.period);
         var periods = (timePassed - (timePassed % ebsVars.period)) / ebsVars.period;
@@ -356,7 +357,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
         $location.path('/accounts');
 				growl.info('Redeeming mature Bond ID: ' + bondId + ' owned by account:' + address + ". Please be patient as it may take several minutes to be included in a block.", {title:"Bond Redemption", ttl: -1});
 				console.log('Redeem TX ID:' + result);
-				growl.warning('Redeem TX ID: ' + result, {ttl: -1});
+				growl.warning('Redeem TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
         var xBond = fetchBond(bondId);
         addPending(address, "Bond Redemption", "Bond ID: " + bondId + " - Amount: " + (xBond.multiplier*ebsVars.price) + " EXP", result, bondId);
 			}
@@ -375,8 +376,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 			} else {
         $location.path('/accounts');
 				growl.info("Your transfer of Bond ID: " + bondId + " from " + address + " to "+newAccount+" has been submitted, please be patient as it may take several minutes to be included in a block.", {title:"Bond Transfer", ttl: -1});
-				console.log('Transfer TX ID:'+result);
-				growl.warning('Transfer TX ID: '+result, {ttl: -1});
+				console.log('Transfer TX ID:' + result);
+				growl.warning('Transfer TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
         if(addressList.indexOf(address) > -1) addPending(address, "EBS Transfer Sent", "Bond ID: " + bondId + " - Transferred to " + newAccount.substring(0,16) + "...", result, bondId);
         if(addressList.indexOf(newAccount) > -1) addPending(newAccount, "EBS Transfer Recv", "Bond ID: " + bondId + " - Transferred from " + address.substring(0,16) + "...", result, bondId);
 			}

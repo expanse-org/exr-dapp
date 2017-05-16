@@ -20,7 +20,8 @@
     'dashboard',
     'deposit',
     'footer',
-    'sidebar'
+    'sidebar',
+    'syncmodal'
   ]).config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
     $locationProvider.hashPrefix('!');
     $locationProvider.html5Mode(false);

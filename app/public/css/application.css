@@ -176,3 +176,18 @@ input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
+.closex{
+  opacity: 0.5;
+  filter: alpha(opacity=50);font-size:13px;color:#fff;font-weight:normal;text-shadow:none;}
+  .codepre{  display: block;
+  padding: 20px;
+  margin:0px;
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  background-color: #222;
+  color: #ccc;
+  border: 1px solid #999;
+  }
+ 

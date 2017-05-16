@@ -1,4 +1,6 @@
-angular.
+(function () {
+  'use strict';
+  angular.
   module('modal', []).
   component('modal', {
     templateUrl: 'core/modal/modal.template.html',
@@ -11,3 +13,4 @@ angular.
       };
     }
   });
+})();

@@ -30,7 +30,9 @@
   <div class="row" ng-if="bc.$storage.agreementConfirm==true && bc.ebsVars.isConnected==true">
     <sidebar></sidebar>
     <div class="col-sm-9 content">
-      <ng-view><dashboard></dashboard></ng-view>
+      <ng-view>
+        <dashboard></dashboard>
+      </ng-view>
       <footer></footer>
     </div>
   </div>
@@ -45,7 +47,7 @@
     <footer></footer>
   </div>
 </div>
-
+<syncmodal></syncmodal>
 <!-- Electron JQuery Compatability -->
 <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <!-- JQuery -->
@@ -85,7 +87,8 @@
 <script src="core/deposit/deposit.component.js"></script>
 <script src="core/footer/footer.component.js"></script>
 <script src="core/modal/modal.component.js"></script>
-<!-- Electron JQuery Compatability --> 
+<script src="core/syncmodal/syncmodal.component.js"></script>
+<!-- Electron JQuery Compatability -->
 <script>if (window.module) module = window.module;</script>
 </body>
 </html>

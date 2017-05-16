@@ -8,6 +8,11 @@
       var vm = this;
       vm.ebsVars = bondService.ebsVars;
       vm.pending = $localStorage.pending;
+      vm.showSyncing = function () {
+        if(vm.ebsVars.isSyncing===true){
+         $('#syncModal').modal({"backdrop": "static"});
+        }
+      };
     }
   });
 })();

@@ -12,9 +12,9 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   
   var ebsVars = {
     version: require('./package.json').version,
-    period:240,    //2628000
-    maturity:1440, //15768000
-    price: 2,      //100
+    period:2628000,
+    maturity:15768000,
+    price: 100,
     coupon: 1,
     ebsBal:0,
     currentBlock:0,
@@ -25,12 +25,17 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     isConnected:false,
     isSyncing:false,
     syncCurrentBlock:0,
-    syncHighestBlock:0
+    syncHighestBlock:0,
+    syncStartTime:Date.now(),
+    syncTimeSpent:"",
+    syncTimeLeft:"",
+    syncCount:0
   };
-  
+
   var gexpChild;
   var events;
   var updateInterval;
+  var hWatch = false;
   var lastEventBlock = $localStorage.lastBlock;
   var contract = $localStorage.ebsABI ? web3.eth.contract($localStorage.ebsABI) : web3.eth.contract(Contract.abi);
   var bondContract = contract.at(Contract.address);
@@ -84,9 +89,13 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
       ebsVars.isConnected = true;
 			growl.success("Connected to node: " + $localStorage.connectionString + ".", {title:"Connection Successful", ttl: 9000}); 
       $location.path('/overview');
-      $timeout(function(){checkUpdates(false, true);}, 1600);
+
       syncUpdate();
-      watchHistory();
+      if(ebsVars.currentBlock>ebsVars.minBlock) {
+        $timeout(function(){checkUpdates(false, true);}, 1600);
+        watchHistory();
+        hWatch=true;
+      }
       updateInterval = $interval(updateBlock, 5000); //check if connected
 			return true;	
 		} else {
@@ -105,20 +114,32 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     web3.eth.isSyncing(function(error, sync){
         if(!error) {
             if(sync === true) {   // sync started
+              ebsVars.syncStartTime = Date.now();
               ebsVars.isSyncing = true;
               web3.reset(true);
+              ebsVars.syncCount=0;
             } else if(sync) {    //sync obj exists = syncing
+              if(ebsVars.syncCount==2)  $("#syncModal").modal("show");
+              var endTime = Date.now();
+              ebsVars.syncCount++;
+              var time_duration = (endTime - ebsVars.syncStartTime) / 1000;
+	            ebsVars.syncTimeSpent = secToRelativeTime(time_duration);
+              ebsVars.syncTimeLeft = secToRelativeTime((((time_duration) / ebsVars.syncCount)) * (sync.highestBlock-sync.currentBlock));
               ebsVars.syncCurrentBlock = sync.currentBlock;
               ebsVars.syncHighestBlock = sync.highestBlock;
-              console.log('Syncing: ' + sync.currentBlock + ' / ' + sync.highestBlock);
               ebsVars.bondsTotal = bondContract.totalBonds();
-              ebsVars.bondsAvail = bondContract.limitBonds()-ebsVars.bondsTotal;
+              ebsVars.bondsAvail = bondContract.limitBonds() - ebsVars.bondsTotal;
               ebsVars.bondsBal = web3.fromWei(web3.eth.getBalance(Contract.address));
               $localStorage.accounts = getAccounts();
             } else {
               ebsVars.isSyncing = false;
               ebsVars.currentBlock = web3.eth.blockNumber;
-              //if(ebsVars.currentBlock>ebsVars.minBlock) {  }
+              $("#syncModal").modal("hide");
+              if(hWatch==false && ebsVars.currentBlock>ebsVars.minBlock) { 
+                $timeout(function(){checkUpdates(false, true);}, 1600);
+                watchHistory();
+                hWatch=true;
+              }
             }
         }
     });
@@ -176,8 +197,23 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   };
 
 
-  /*  Data and Conversion Functions  */
 
+  /*  Data and Conversion Functions  */
+  var secToRelativeTime = function(seconds) {
+  
+		var interval = Math.floor(seconds / 31536000);
+		if (interval > 1) return interval + " years";
+		interval = Math.floor(seconds / 2592000);
+		if (interval > 1) return interval + " months";
+		interval = Math.floor(seconds / 86400);
+		if (interval > 1) return interval + " days";
+		interval = Math.floor(seconds / 3600);
+		if (interval > 1) return interval + " hours";
+		interval = Math.floor(seconds / 60);
+		if (interval > 1) return interval + " minutes";
+		return Math.floor(seconds) + " seconds";
+  };
+  
 	var blockToRelativeTime = function(blockNum){
 		var curBlock = web3.eth.blockNumber;
 		var seconds = 0;

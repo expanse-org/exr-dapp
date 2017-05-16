@@ -12,7 +12,7 @@
         <li> <a ng-href="#!/bonds">Manage Bonds</a></li>
         <!-- <li> <a ng-href="#!/settings">Settings</a></li> -->
         <li class="nav-header">Info</li>
-        <li><a class="f11">Current Block: {{($ctrl.ebsVars.syncCurrentBlock > $ctrl.ebsVars.currentBlock) ? $ctrl.ebsVars.syncCurrentBlock  : $ctrl.ebsVars.currentBlock}}</a></li>
+        <li><a ng-click="$ctrl.showSyncing()" class="f11">Current Block: {{($ctrl.ebsVars.syncCurrentBlock > $ctrl.ebsVars.currentBlock) ? $ctrl.ebsVars.syncCurrentBlock  : $ctrl.ebsVars.currentBlock}}</a></li>
       </ul>
       <hr class="visible-xs m-t" />
     </div>

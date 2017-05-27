@@ -9,7 +9,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   const path = require('path');
   const web3 = new Web3();
   const net = require('net');
-  var clipboard = new Clipboard('.clipb');
+  const os = require('os');  
+var clipboard = new Clipboard('.clipb');
   
   var ebsVars = {
     version: require('./package.json').version,

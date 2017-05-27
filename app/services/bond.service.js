@@ -9,7 +9,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   const path = require('path');
   const web3 = new Web3();
   const net = require('net');
-  var clipboard = new Clipboard('.clipb');
+  const os = require('os');  
+var clipboard = new Clipboard('.clipb');
   
   var ebsVars = {
     version: require('./package.json').version,
@@ -105,6 +106,27 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 	    return false;
 		}
 	};
+
+
+ var defaultIpcPath = function() {
+    //if($localStorage.settings.ipcPath)
+    var ipcPath = os.homedir();
+    switch(process.platform) {
+      case "win32":
+        ipcPath = '\\\\.\\pipe\\gexp.ipc';
+        break;
+      case "darwin":
+        ipcPath += '/Library/Expanse/gexp.ipc';
+      break;
+      case "linux": 
+      case "freebsd": 
+      case "sunos": 
+        ipcPath += '/.expanse/gexp.ipc';
+      break;
+    }
+    return  ipcPath;
+  };
+
 
   var syncUpdate = function(){
     ebsVars.currentBlock = web3.eth.blockNumber;
@@ -479,8 +501,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
       if(conf==true) {
         if(pw==confpw){
           var client = new net.Socket();
-          var ipcPath = "\\\\.\\pipe\\gexp.ipc";
-          var web3ipc = new Web3(new Web3.providers.IpcProvider(ipcPath,client));
+          var web3ipc = new Web3(new Web3.providers.IpcProvider(defaultIpcPath(),client));
           web3ipc.personal.newAccount(pw, function(error, result){
             if(!error) {
               growl.success("New account has succesfully been created.", {title:"Account Created.", ttl: -1}); 
@@ -505,8 +526,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   
   var unlockAccount = function(account,pw,cb){ 
     var client = new net.Socket();
-    var ipcPath = "\\\\.\\pipe\\gexp.ipc";
-    var web3ipc = new Web3(new Web3.providers.IpcProvider(ipcPath,client));
+    var web3ipc = new Web3(new Web3.providers.IpcProvider(defaultIpcPath(),client));
     web3ipc.personal.unlockAccount(account,pw,2, function(error, result){
       if(!error) cb(result);
       else {

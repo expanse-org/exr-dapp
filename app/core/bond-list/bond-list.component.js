@@ -7,8 +7,8 @@
     controller: function (bondService) {
       
       var vm = this;
-	 	  vm.bonds = bondService.listBonds();
-      vm.date=new Date();
+      vm.userData = bondService.ebsUserData; 
+      vm.date = new Date();
       
       vm.redeem = function(bondId, account){
         bondService.confirmModal(
@@ -25,7 +25,7 @@
       vm.collect = function(bondId, account){
         bondService.confirmModal(
           "Confirm Collection",
-          "You are about to collect all available interest coupons on Bond ID #" + bondId +" to EBS Wallet for account " + account + ".<br />Are you sure you wish to proceed?",
+          "You are about to collect all available interest coupons on Bond ID #" + bondId + " to EBS Wallet for account " + account + ".<br />Are you sure you wish to proceed?",
           function() {
             bondService.unlockedCall(account, function(){ 
               bondService.collect(bondId, account);
@@ -34,7 +34,7 @@
         );
       };
       
-      vm.blockToRelativeTime=function(blockNum){
+      vm.blockToRelativeTime = function(blockNum){
         return bondService.blockToRelativeTime(blockNum);	
       };
         

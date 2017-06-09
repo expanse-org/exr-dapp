@@ -1,7 +1,7 @@
 {
   "name": "Expanse Bond Demonstration DApp",
   "description": "Expanse Bond Demonstration DApp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage": "https://www.expanse.tech/bonds",
   "license": "MIT",
   "private": true,

@@ -4,11 +4,12 @@
   module('bondList', []).
   component('bondList', {
     templateUrl: 'core/bond-list/bond-list.template.html',
-    controller: function (bondService) {
-      
+    controller: function (bondService, $interval) {
       var vm = this;
       vm.userData = bondService.ebsUserData; 
-      vm.date = new Date();
+      vm.blockTimes = {}; 
+      vm.date = Date.now();
+      $interval(function(){vm.date = Date.now();}, 5000);
       
       vm.redeem = function(bondId, account){
         bondService.confirmModal(
@@ -33,11 +34,18 @@
           }
         );
       };
-      
-      vm.blockToRelativeTime = function(blockNum){
-        return bondService.blockToRelativeTime(blockNum);	
+
+      vm.$onInit = function () {
+        $.each(vm.userData.bonds, function(key, bond) {
+          bondService.blockToRelativeTime(bond.created).then(function(resultTime){ 
+            vm.blockTimes[bond.created] = resultTime;
+            return bondService.blockToRelativeTime(bond.lastRedemption);
+          }).then(function(resultTime){
+            vm.blockTimes[bond.lastRedemption] = resultTime;
+          });
+        });
       };
-        
+
     }
   });
 })();

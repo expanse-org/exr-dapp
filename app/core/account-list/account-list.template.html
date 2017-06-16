@@ -13,10 +13,10 @@
           <div class="col-sm-4 text-center"> <a ng-href="#!/deposit/{{account.address}}">
             <button id="depositButton"  name="depositButton" class="btn btn-primary" ng-href="/" >Deposit to EBS</button>
             </a></div>
-          <div class="col-sm-4 text-center" ng-show="account.bondBalance>0"> <a ng-href="#!/bond/{{account.address}}">
+          <div class="col-sm-4 text-center" ng-show="account.bondBalance > 0 && account.$state < 3"> <a ng-href="#!/bond/{{account.address}}">
             <button id="buyButton" name="buyButton" class="btn btn-primary" >Create New Bond</button>
             </a> </div>
-          <div class="col-sm-4 text-center" ng-show="account.bondBalance>0">
+          <div class="col-sm-4 text-center" ng-show="account.bondBalance > 0 && account.$state < 3">
             <button id="withdrawButton" name="withdrawButton" class="btn btn-primary" ng-click="$ctrl.withdraw(account)">Withdraw Balance</button>
           </div>
         </div>

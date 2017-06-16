@@ -50,7 +50,6 @@
     if(!$localStorage.connectionString) $localStorage.connectionString = "http://localhost:9656";
     if(!$localStorage.launchArgs) $localStorage.launchArgs = "--rpc --rpcaddr localhost"
     if(!$localStorage.history) $localStorage.history = {};
-    if(!$localStorage.accounts) $localStorage.accounts = {};
     if(!$localStorage.pending) $localStorage.pending = {};
     if(!$localStorage.autoLaunch) $localStorage.autoLaunch = false;
     if(!$localStorage.agreementConfirm) $localStorage.agreementConfirm=false;

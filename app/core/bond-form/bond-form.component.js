@@ -7,14 +7,15 @@
     controller: function(bondService, $scope, $routeParams, growl) {
       var vm = this;
       vm.ebsVars = bondService.ebsVars;
+    
       bondService.getAccount($routeParams.account).then(function(account){ vm.account = account; });
       
       vm.$onInit = function() { vm.multiplier = 1; };
       
       vm.buyBond = function() {
         if(!isNaN(vm.multiplier) && vm.multiplier > 0) {
-          if((parseInt(this.multiplier, 10) * vm.ebsVars.price) > parseInt(this.account.bondBalance, 10)){
-            growl.error('Insufficient Funds: ' + (vm.multiplier*vm.ebsVars.price) + ' EXP is required to be deposited into the EBS contract wallet by account '+this.account.address+'. Current EBS Wallet Balance is '+vm.account.bondBalance, {title:"Insufficient Funds", ttl: -1});
+          if((parseInt(this.multiplier, 10) * vm.ebsVars.price) > parseInt(vm.account.bondBalance, 10)){
+            growl.error('Insufficient Funds: ' + (vm.multiplier*vm.ebsVars.price) + ' EXP is required to be deposited into the EBS contract wallet by account ' + this.account.address + '. Current EBS Wallet Balance is ' + vm.account.bondBalance, {title:"Insufficient Funds", ttl: -1});
           } else {
             if(parseInt(vm.multiplier, 10) <= vm.ebsVars.bondsAvail){
               bondService.confirmModal(

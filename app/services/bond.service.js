@@ -15,25 +15,26 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 
   var ebsVars = {
     version: require('./package.json').version,
-    period:2628000,
-    maturity:15768000,
+    period: 2628000,
+    maturity: 15768000,
     price: 100,
     coupon: 1,
-    ebsBal:0,
-    currentBlock:0,
-    bondsBal:0,
-    bondsTotal:0,
-    bondsAvail:0,
-    minBlock:616100,
-    isConnected:false,
-    isSyncing:false,
-    syncCurrentBlock:0,
-    syncHighestBlock:0,
-    syncStartTime:Date.now(),
-    syncTimeSpent:"",
-    syncTimeLeft:"",
-    syncCount:0
+    ebsBal: 0,
+    currentBlock: 0,
+    bondsBal: 0,
+    bondsTotal: 0,
+    bondsAvail: 0,
+    minBlock: 616100,
+    isConnected: false,
+    isSyncing: false,
+    syncCurrentBlock: 0,
+    syncHighestBlock: 0,
+    syncStartTime: Date.now(),
+    syncTimeSpent: "",
+    syncTimeLeft: "",
+    syncCount: 0
   };
+
   var ebsUserData = { accounts:[], bonds:[] };
   var gexpChild;
   var events;
@@ -109,8 +110,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 	var connect = function(){ 
 		console.log('Attemping to connect to ' + $localStorage.connectionString);
 		growl.info("Attempting to connect to expanse node at " + $localStorage.connectionString + ".", {title:"Connection Attempt", ttl: 9000}); 
-    web3.setProvider(new Web3.providers.IpcProvider(defaultIpcPath(),client));
-    web3.setProvider(new web3.providers.HttpProvider($localStorage.connectionString));
+    web3.setProvider(new Web3.providers.IpcProvider(defaultIpcPath(), client));
+    //web3.setProvider(new web3.providers.HttpProvider($localStorage.connectionString));
     web3.net.getListening(function(error, result){
       if(error) {
 			  growl.error("Could not connect to expanse node at " + $localStorage.connectionString + ".", {title:"Connection Error", ttl: 9000}); 
@@ -149,11 +150,14 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
           ebsVars.syncTimeLeft = secToRelativeTime((((time_duration) / ebsVars.syncCount)) * (sync.highestBlock-sync.currentBlock));
           ebsVars.syncCurrentBlock = sync.currentBlock;
           ebsVars.syncHighestBlock = sync.highestBlock;
-          ebsVars.bondsTotal = bondContract.totalBonds();
-          ebsVars.bondsAvail = bondContract.limitBonds() - ebsVars.bondsTotal;
-          //TODO ebsVars.bondsBal = web3.fromWei(web3.eth.getBalance(Contract.address));
+          bondContract.totalBonds(function(error, res){
+            ebsVars.bondsTotal = res;
+            bondContract.limitBonds(function(error2, res2){
+              ebsVars.bondsAvail = res2 - ebsVars.bondsTotal;
+            });
+          });
           refreshAccounts();
-          refreshBonds().then(function(bonds){console.log(bonds.length+">"+ebsUserData.bonds.length)});
+          refreshBonds();
         } else { //either sanc or not connected
           ebsVars.isSyncing = false;
           web3.eth.getBlockNumber(function(error, result){ if(!error) ebsVars.currentBlock = result; });
@@ -174,7 +178,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
       web3.net.getListening(function(error, result){
         if(error || result !== true) {
           web3.reset();
-          sebsVars.isConnected = false;
+          ebsVars.isConnected = false;
           if(wasConnected === true) { $interval.cancel(updateInterval);  }
           if(error) { reject(error); } else { resolve(result); }
         } else {
@@ -183,9 +187,13 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
           .then(function(blockNum) { ebsVars.currentBlock = blockNum; return getBalance(Contract.address); })
           .then(function(balance) { 
             ebsVars.bondsBal = web3.fromWei(balance);
-            ebsVars.bondsTotal = bondContract.totalBonds();
-            ebsVars.bondsAvail = bondContract.limitBonds() - ebsVars.bondsTotal;
-            resolve(true);
+            bondContract.totalBonds(function(error, res){
+              ebsVars.bondsTotal = res;
+              bondContract.limitBonds(function(error2, res2){
+                ebsVars.bondsAvail = res2 - ebsVars.bondsTotal;
+                resolve(true);
+              }) 
+            });
             //ebsVars.isConnected = _isConnected; // don't currently set, no auto re-connect, let user check
             //if(wasConnected == false) $location.path('/accounts'); // did we just reconnect after being dc'ed?
           });
@@ -250,31 +258,31 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
   };
   
 	var blockToRelativeTime = function(blockNum){
-    getBlockNumber().then(function(curBlock){ 
-      var seconds = 0;
-      // If block is in the future, estimate based on expected avgBlocktime, otherwise query web3
-      if(blockNum > curBlock){
-        seconds = (blockNum - curBlock) * 60;
-      } else {
-        var date = web3.eth.getBlock(blockNum).timestamp*1000;
-        seconds = Math.floor((new Date() - date) / 1000);
-      }
-      var interval = Math.floor(seconds / 31536000);
-      if (interval > 1) return interval + " years";
-      interval = Math.floor(seconds / 2592000);
-      if (interval > 1) return interval + " months";
-      interval = Math.floor(seconds / 86400);
-      if (interval > 1) return interval + " days";
-      interval = Math.floor(seconds / 3600);
-      if (interval > 1) return interval + " hours";
-      interval = Math.floor(seconds / 60);
-      if (interval > 1) return interval + " minutes";
-      return Math.floor(seconds) + " seconds";
-	  });
+    return $q(function(resolve, reject) {
+      getBlockNumber().then(function(curBlock){ 
+        blockToTimestamp(blockNum).then(function(timestamp){
+          if(blockNum > curBlock){
+             resolve(secToRelativeTime((blockNum - curBlock) * 60));
+          } else {
+            resolve(secToRelativeTime(Math.floor((new Date() - (timestamp*1000)) / 1000)));
+          }
+        });
+      });
+    });
 	};  // Determine how far from now a block is. (eg; 5s ago, 3 days ago, etc)
 
-  var blockToTimestamp = function(block){ return web3.eth.getBlock(block).timestamp; };
- 
+
+  var blockToTimestamp = function(blockNum){
+    return $q(function(resolve, reject) {
+      web3.eth.getBlock(blockNum, function(error, block){
+        if(error) {
+          reject(error);
+        } else {
+          resolve(block.timestamp);
+        }
+      });
+    });
+  };
 
   /*  Promisified Web3 Functions */
  
@@ -318,28 +326,40 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
             var deferred = $q.defer();
             promises.push(deferred.promise);
             getUserBonds(account).then(function(result){
-              if(result!=0) {
+              if(result != 0) {
+                var promises2 = [];
                 $.each(result, function(bondKey, bondId) {
-                  fetchBond(bondId).then(function(bond){
-                    bonds.push(bond);
-                    deferred.resolve(true);
-                  });
+                  if(bondId != 0) { 
+                    var deferred2 = $q.defer();
+                    promises2.push(deferred2.promise);
+                    fetchBond(bondId).then(function(bond){
+                      bonds.push(bond);
+                      deferred2.resolve(true);
+                    });
+                  }
                 });
-              } else { 
+                $q.all(promises2).then(function(data){
+                  deferred.resolve(true);
+                });
+              } else {
                 deferred.resolve(true);
               }
             });
           });
+
           $q.all(promises).then(function(data){
-            bonds = bonds.sort(function(a,b) { return  a.id - b.id; } ); 
-            if(JSON.stringify(ebsUserData.bonds) != JSON.stringify(bonds)) { ebsUserData.bonds = bonds; }
+            bonds = bonds.sort(function(a,b) { return a.id - b.id; } ); 
+            if(!angular.equals(ebsUserData.bonds, bonds)) { 
+              console.log('Updating Bonds...');
+              ebsUserData.bonds = bonds;
+            }
             resolve();
-          }); 
+          });
         }
       });
     });
 	};
-         
+    
 	var getUserBonds = function(address){
     return $q(function(resolve, reject) {
       bondContract.getUser.call(address, function(error, user){
@@ -369,7 +389,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
         if(error) { 
           reject(error);
         } else {
-		      resolve({id: bondId, active: bondData[0], address: bondData[1], multiplier: bondData[2].c[0], maturityTime: bondData[3].c[0], lastRedemption:bondData[4].c[0], nextRedemption:bondData[5].c[0], created:bondData[6].c[0], couponsRemaining:bondData[7].c[0]});
+		      resolve({id: bondId, active: bondData[0], address: bondData[1], multiplier: bondData[2].c[0], maturityTime: bondData[3].c[0], lastRedemption:bondData[4].c[0], nextRedemption:bondData[5].c[0], created:bondData[6].c[0], couponsRemaining:bondData[7].c[0], $state:1});
         }
       });
     });
@@ -402,24 +422,23 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
         addPendingHistory(address, "EBS Deposit", "Amount: " + amount + " EXP", result, null);
 			}
 		});
-        return tx;
-     
+    return tx;
 	};
 	
 	var withdraw = function(address){
 		console.log('Withdrawing bond contract balance for account '+address);
-		var tx = bondContract.withdraw.sendTransaction({from: address, gas:400000}, function(err, result){ 
+	  	bondContract.withdraw.sendTransaction({from: address, gas:400000}, function(err, result){ 
 			if(err) {
 				console.log('Withdraw Error: '+err);
 				growl.error(err.message, {title:"Withdraw Error", ttl: -1}); 
 			} else {
+        $.each(ebsUserData.accounts, function(index,value){ if(value.address == address) { value.$state = 3; } });
 				growl.info("Your Withdraw request for balance belonging to " + address + " has been submitted, please be patient as it may take several minutes to be included in a block.", {title:"Bond Contract Withdraw", ttl: -1});
 				console.log('Withdraw TX ID: ' + result);
 				growl.warning('Withdraw TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
-        getAccount().then(function(account){ addPendingHistory(address, "EBS Withdraw", "Amount: " + account.bondBalance + " EXP", result, null); });
+        getAccount(address).then(function(account){ addPendingHistory(address, "EBS Withdraw", "Amount: " + account.bondBalance + " EXP", result, null); });
 			}
 		});
-		return tx;
 	};
 	
 	var buyBond = function(multiplier, address){
@@ -441,17 +460,18 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 	
 	var collect = function(bondId, address){
 		console.log('Redeeming mature balance for Bond ID: ' + bondId + ' owned by account: ' + address);
-		var tx = bondContract.redeemCoupon.sendTransaction(bondId, {from: address, gas:400000}, function(err, result){ 
+		bondContract.redeemCoupon.sendTransaction(bondId, {from: address, gas:400000}, function(err, result){ 
 			if(err) {
 				console.log('Redeem Coupon Error: ' + err);
 				growl.error(err.message, {title:"Coupon Redemption Error", ttl: -1}); 
 			} else {
+        $.each(ebsUserData.bonds, function(index,value){ if(value.id == bondId) { value.$state = 3; } });
         $location.path('/accounts');
 				growl.info('Redeeming mature coupons for Bond ID: ' + bondId + ' owned by account: ' + address + ". Please be patient as it may take several minutes to be included in a block.", {title:"Coupon Redemption", ttl: -1});
 				console.log('CouponRedeem TX ID:' + result);
 				growl.warning('CouponRedeem TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
         fetchBond(bondId).then(function(xBond) {
-          var timePassed = web3.eth.getBlock(xBond.created).timestamp - (xBond.nextRedemption - ebsVars.period);
+          var timePassed = Math.floor(Date.now() / 1000) - (xBond.nextRedemption - ebsVars.period);
           var periods = (timePassed - (timePassed % ebsVars.period)) / ebsVars.period;
           if(xBond.couponsRemaining < periods) periods = xBond.couponsRemaining;
           var amount = (xBond.multiplier * periods) * ebsVars.coupon;
@@ -459,7 +479,6 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
         });
 			}
 		});
-		return tx;
 	};
 	
   var redeem = function(bondId, address){
@@ -469,6 +488,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 				console.log('Redeem Bond Error: '+err);
 				growl.error(err.message, {title:"Bond Redemption Error", ttl: -1}); 
 			} else {
+        $.each(ebsUserData.bonds, function(index,value){ if(value.id == bondId) { value.$state = 4; } });
         $location.path('/accounts');
 				growl.info('Redeeming mature Bond ID: ' + bondId + ' owned by account:' + address + ". Please be patient as it may take several minutes to be included in a block.", {title:"Bond Redemption", ttl: -1});
 				console.log('Redeem TX ID:' + result);
@@ -488,13 +508,15 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 				console.log('Transfer Error: ' + err);
 				growl.error(err.message, {title:"Bond Transfer Error", ttl: -1}); 
 			} else {
-        $location.path('/accounts');
-				growl.info("Your transfer of Bond ID: " + bondId + " from " + address + " to "+newAccount+" has been submitted, please be patient as it may take several minutes to be included in a block.", {title:"Bond Transfer", ttl: -1});
-				console.log('Transfer TX ID:' + result);
-				growl.warning('Transfer TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
-        //$.each(data.programs, function (index, vvalue) {
-       //TODO  if(addressList.indexOf(address) > -1) addPendingHistory(address, "EBS Transfer Sent", "Bond ID: " + bondId + " - Transferred to " + newAccount.substring(0,16) + "...", result, bondId);
-       // if(addressList.indexOf(newAccount) > -1) addPendingHistory(newAccount, "EBS Transfer Recv", "Bond ID: " + bondId + " - Transferred from " + address.substring(0,16) + "...", result, bondId);
+         $.each(ebsUserData.bonds, function(index,value){ if(value.id == bondId) { value.$state = 4; } });
+        web3.eth.getAccounts(function(error, addressList){
+          $location.path('/accounts');
+				  growl.info("Your transfer of Bond ID: " + bondId + " from " + address + " to " + newAccount + " has been submitted, please be patient as it may take several minutes to be included in a block.", {title:"Bond Transfer", ttl: -1});
+				  console.log('Transfer TX ID:' + result);
+				  growl.warning('Transfer TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
+          if(addressList.indexOf(address) > -1) addPendingHistory(address, "EBS Transfer Sent", "Bond ID: " + bondId + " - Transferred to " + newAccount.substring(0,16) + "...", result, bondId);
+          if(addressList.indexOf(newAccount) > -1) addPendingHistory(newAccount, "EBS Transfer Recv", "Bond ID: " + bondId + " - Transferred from " + address.substring(0,16) + "...", result, bondId);
+        });
 			}
 		});
 		return tx;
@@ -507,14 +529,14 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     return $q(function(resolve, reject) {
       web3.eth.getAccounts(function(error, accountList){ 
         if(error) {
-           reject(error); 
+          reject(error); 
         } else {
           var accounts = [];
           var promises = [];
           angular.forEach(accountList, function(account, key) {
             var deferred = $q.defer();
             promises.push(deferred.promise);
-            var act = { id:key, address:account, balance:0, bondBalance:0, unlocked:false };
+            var act = { id:key, address:account, balance:0, bondBalance:0, unlocked:false, $state:1 };
             getBalance(account).then(function(balance) {
               act.balance = web3.fromWei(balance, "ether");
               return getBondBalance(account);
@@ -533,7 +555,8 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
 
           $q.all(promises).then(function(data){
             accounts = accounts.sort(function(a,b) { return  a.id - b.id; } ); 
-            if(JSON.stringify(ebsUserData.accounts) != JSON.stringify(accounts)) { 
+            if(!angular.equals(ebsUserData.accounts, accounts)) { 
+              console.log('Updating Accounts...');
               ebsUserData.accounts = accounts;
             }
             resolve(accounts);
@@ -543,47 +566,69 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     });
   };
 
-	var getAccount = function(account) {/*
+	var getAccount = function(account) {
     return $q(function(resolve, reject) {
-      web3.eth.getBalance(account, function(error, balance){ 
-        if(error) reject(error);
-        resolve({ unlocked: isAccountUnlocked(value), address: value, balance: web3.fromWei(balance,"ether"), bondBalance: web3.fromWei(getBondBalance(value),"ether") });
+      var act = { id:1, address:account, balance:0, bondBalance:0, unlocked:false };
+      getBalance(account).then(function(balance) {
+        act.balance = web3.fromWei(balance, "ether");
+        return getBondBalance(account);
+      }).then(function(balance){
+        act.bondBalance = web3.fromWei(balance, "ether");
+        return isAccountUnlocked(account);
+      }).then(function(isUnlocked){
+        act.unlocked = isUnlocked;
+        resolve(act);
+      }).catch(function(error){
+        handleError('getAccount', error);
+        reject(error);
       });
-    });*/
+    });
   };
 	
 	var isAccountUnlocked = function(account){
-		// There is currently no official way to check if an account is locked
+    // There is currently no official way to check if an account is locked
 		// This is a (hopefully temporary) hack to check if the account is unlocked, as it must be to sign
-		var unlocked=false;
-	/*	try{
-			var check=web3.eth.sign(account,"0x0000000000000000000000000000000000000000000000000000000000000000");
-			unlocked=true;
-		} catch(err) {
-			unlocked=false;
-		}*/ //TODO FIX ASYNC
-		return unlocked;
+    return $q(function(resolve, reject) {
+      web3.eth.sign(account, "0x0000000000000000000000000000000000000000000000000000000000000000", function(error, result){  
+		    if(error) { 
+          if(error.message.indexOf('authentication needed') !== -1){
+            resolve(false);
+          } else { 
+            reject(error);
+          }
+        } else {
+          resolve(true);
+        }
+    	});
+    });
 	};
   
-  var unlockedCall = function(addr, fn){
-    if(!isAccountUnlocked(addr)){
-      $('#modal').modal({"backdrop": "static"});
-      $('#modalPassword, #modalSend').show();
-      $('#modalUpdate, #modalIgnore').hide();
-      $('#modalYes, #modalNo').hide();
-      $('#modalTitle').html("Account Locked");
-      $('#modalDesc').html("The account " + addr + " is currently locked. Please enter the password for this account to continue with this transaction.");
-      $("#modalSend").off().on('click', function() { 
-        $("#modal").modal("hide");
-        var pw = $("#modalPassword").val();
-        $("#modalPassword").val("");
-        unlockAccount(addr, pw, function(){ 
-          fn();
+  var unlockedCall = function(account, fn){
+    console.log('unlocked call');
+     isAccountUnlocked(account).then(function(isUnlocked){
+      if(isUnlocked){
+        fn();
+      } else {
+        $('#modal').modal({"backdrop": "static"});
+        $('#modalPassword, #modalSend').show();
+        $('#modalUpdate, #modalIgnore').hide();
+        $('#modalYes, #modalNo').hide();
+        $('#modalTitle').html("Account Locked");
+        $('#modalDesc').html("The account " + account + " is currently locked. Please enter the password for this account to continue with this transaction.");
+        $("#modalSend").off().on('click', function() { 
+          $("#modal").modal("hide");
+          var pw = $("#modalPassword").val();
+          $("#modalPassword").val("");
+          unlockAccount(account, pw, function(){ 
+            fn();
+          });
+          $("#modalSend").off();
         });
-        $("#modalSend").off();
-      });
-      $('#modalPassword').focus();
-    } else fn();
+        $('#modalPassword').focus(); 
+      }
+     }).catch(function(error){
+
+     });
   };
   
   var confirmModal = function(title, msg, fnc){
@@ -674,7 +719,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     if (error) { 
       console.log("Event Read (2) Error: " + error); 
     } else {
-      console.log("[Rebuilding History]");
+      console.log("Rebuilding History...");
       $.each( results, function( index, result ) {
         addResultHistory(result, false); 
       });
@@ -686,79 +731,83 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     web3.eth.getAccounts(function(error, addressList){  
       if(error) {
         handleError('addResultHistory - getAccoounts: ', error);
-      }  else {
+      } else {
         var xObj = {};
         var xGrowl = {};
         xObj.block = result.blockNumber;
         if (typeof(result.args.BondId) != "undefined") xObj.bondId=result.args.BondId;
-        switch(result.event){
-          case "Buys":
-            xObj.address = result.args.User;
-            xObj.info = "Bond ID: " + result.args.BondId + " - Multiplier: " + result.args.Multiplier;
-            xObj.type = "Bond Purchase";
-            xGrowl.message="Your bond purchased has been successfully recorded on the blockchain.";
-            xGrowl.title = "Bond Purchase";
-          break;
-          case "RedeemCoupons":
-            xObj.address = result.args.User;
-            xObj.info = "Bond ID: "+result.args.BondId + " - Coupons: "+result.args.Coupons+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-            xObj.type = "Interest Redemption";
-            xGrowl.message = "Your coupon(s) has been redeemed.";
-            xGrowl.title = "Coupon Redemption";
-          break;
-          case "RedeemBonds":
-            xObj.address = result.args.User;
-            xObj.info = "Bond ID: "+result.args.BondId+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-            xObj.type = "Bond Redemption";
-            xGrowl.message = "Your bond has been redeemed.";
-            xGrowl.title = "Bond Redemption";
-          break;
-          case "Withdraws": 
-            xObj.address = result.args.User;
-            xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-            xObj.type = "EBS Withdraw";
-            xGrowl.message = "Your withdraw has been completed.";
-            xGrowl.title = "Bond Contract Withdraw";
-          break;
-          case "Transfers": 
-            var userIsFrom = false;
-            if(addressList.indexOf(result.args.TransferFrom) > -1) {
-              xObj.address = result.args.TransferFrom;
-              xObj.info = "Bond ID: " + result.args.BondId + " Transferred to " + result.args.TransferTo.substring(0,16) + "...";
-              xObj.type = "EBS Transfer Sent";
-              userIsFrom = true;
-            } 
-            if(addressList.indexOf(result.args.TransferTo) > -1) {
-              if(userIsFrom === true){ //User Is both from and to in xfer, add event to history for both accounts
-                if(!$localStorage.history[xObj.address]) $localStorage.history[xObj.address] = [];
-                if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
-            return ((JSON.stringify(elm) == JSON.stringify(xObj)) || (elm.tx == result.transactionHash));
-          }).length<1) $localStorage.history[xObj.address].push(JSON.parse(JSON.stringify(xObj)));
-                if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
+        blockToTimestamp(result.blockNumber).then(function(blockTime){
+          xObj.blockTime = blockTime;
+          switch(result.event){
+            case "Buys":
+              xObj.address = result.args.User;
+              xObj.info = "Bond ID: " + result.args.BondId + " - Multiplier: " + result.args.Multiplier;
+              xObj.type = "Bond Purchase";
+              xGrowl.message="Your bond purchased has been successfully recorded on the blockchain.";
+              xGrowl.title = "Bond Purchase";
+            break;
+            case "RedeemCoupons":
+              xObj.address = result.args.User;
+              xObj.info = "Bond ID: "+result.args.BondId + " - Coupons: "+result.args.Coupons+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+              xObj.type = "Interest Redemption";
+              xGrowl.message = "Your coupon(s) has been redeemed.";
+              xGrowl.title = "Coupon Redemption";
+            break;
+            case "RedeemBonds":
+              xObj.address = result.args.User;
+              xObj.info = "Bond ID: "+result.args.BondId+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+              xObj.type = "Bond Redemption";
+              xGrowl.message = "Your bond has been redeemed.";
+              xGrowl.title = "Bond Redemption";
+            break;
+            case "Withdraws": 
+              xObj.address = result.args.User;
+              xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+              xObj.type = "EBS Withdraw";
+              xGrowl.message = "Your withdraw has been completed.";
+              xGrowl.title = "Bond Contract Withdraw";
+            break;
+            case "Transfers": 
+              var userIsFrom = false;
+              $.each(ebsUserData.bonds, function(index,value){ if(value.id == result.args.bondId) { value.$state = 1; } });
+              if(addressList.indexOf(result.args.TransferFrom) > -1) {
+                xObj.address = result.args.TransferFrom;
+                xObj.info = "Bond ID: " + result.args.BondId + " - Transferred to " + result.args.TransferTo.substring(0,16) + "...";
+                xObj.type = "EBS Transfer Sent";
+                userIsFrom = true;
               } 
-              xObj.address = result.args.TransferTo;
-              xObj.info = "Bond ID: " + result.args.BondId + " Transferred from " + result.args.TransferFrom.substring(0,16) + "...";
-              xObj.type = "EBS Transfer Recv";
-            }
-            xGrowl.message = "Your transfer is complete and has been recorded on the blockchain."; 
-            xGrowl.title = "Bond Transfer";
-          break;
-          case "Deposits":
-            xObj.address = result.args.Sender;
-            xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
-            xObj.type = "EBS Deposit";
-            xGrowl.message = "Your deposit has been completed."; 
-            xGrowl.title = "Bond Contract Deposit";
-          break;  
-        } 
-        if(!$localStorage.history[xObj.address]) { $localStorage.history[xObj.address] = []; }
-        if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
+              if(addressList.indexOf(result.args.TransferTo) > -1) {
+                if(userIsFrom === true){ //User Is both from and to in xfer, add event to history for both accounts
+                  if(!$localStorage.history[xObj.address]) $localStorage.history[xObj.address] = [];
+                  if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
+              return ((JSON.stringify(elm) == JSON.stringify(xObj)) || (elm.tx == result.transactionHash));
+            }).length<1) $localStorage.history[xObj.address].push(JSON.parse(JSON.stringify(xObj)));
+                  if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
+                } 
+                xObj.address = result.args.TransferTo;
+                xObj.info = "Bond ID: " + result.args.BondId + " - Transferred from " + result.args.TransferFrom.substring(0,16) + "...";
+                xObj.type = "EBS Transfer Recv";
+              }
+              xGrowl.message = "Your transfer is complete and has been recorded on the blockchain."; 
+              xGrowl.title = "Bond Transfer";
+            break;
+            case "Deposits":
+              xObj.address = result.args.Sender;
+              xObj.info = "Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+              xObj.type = "EBS Deposit";
+              xGrowl.message = "Your deposit has been completed."; 
+              xGrowl.title = "Bond Contract Deposit";
+            break;  
+          } 
+          if(!$localStorage.history[xObj.address]) { $localStorage.history[xObj.address] = []; }
+          if($.grep($localStorage.history[xObj.address], function( elm, indx ) {
             return ((JSON.stringify(elm) == JSON.stringify(xObj)) || (elm.tx == result.transactionHash));
           }).length<1) {
             $localStorage.history[xObj.address].push(xObj);  
             if(isFresh) growl.success(xGrowl.message, {title:xGrowl.title, ttl: -1});
-        } else { console.log('Duplicate History found.'); }
+        } else { console.log('Duplicate History Entry Found, Ignoring...'); }
         if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
+        });
       }
     });
   };
@@ -767,7 +816,7 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     var xObj = {};
     if(!$localStorage.pending[address]) $localStorage.pending[address] = [];
     if (bondId) xObj.bondId=bondId;
-    xObj.address=address;
+    xObj.address = address;
     xObj.type = type;
     xObj.info = info; 
     xObj.tx = tx;
@@ -817,7 +866,6 @@ factory('bondService', function(growl, $localStorage, $rootScope, $location, $ti
     confirmModal: confirmModal,
     newAccount: newAccount,
     getAccount: getAccount,
-    isAccountUnlocked: isAccountUnlocked,
     isAddressValid: isAddressValid,
     deposit: deposit,
     withdraw: withdraw,

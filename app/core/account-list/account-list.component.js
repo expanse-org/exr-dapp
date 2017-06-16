@@ -6,8 +6,9 @@
     templateUrl: 'core/account-list/account-list.template.html',
     controller: function (bondService, $localStorage) {
       var vm = this;
+      vm.userData = bondService.ebsUserData;
       vm.$storage = $localStorage;
-      
+    
       vm.withdraw = function(account) {
         bondService.confirmModal(
           "Confirm Withdraw",
@@ -17,7 +18,7 @@
           }
          );
       };
-      
+
       vm.createAccount = function () {
         bondService.newAccount(false, false);
       };

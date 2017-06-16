@@ -1,7 +1,7 @@
-<div class="row"  ng-if="$ctrl.bonds == 'undefined' || !$ctrl.bonds.length" >
+<div class="row"  ng-if="$ctrl.userData.bonds == 'undefined' || !$ctrl.userData.bonds.length" >
 <h4 class="list-group-header pad-v-20 text-center">You have no bonds, please visit the <a ng-href="#!/accounts">accounts</a> page to create one.</h4>
 </div>
-<div class="row" ng-if="$ctrl.bonds != 'undefined' || $ctrl.bonds.length" ng-repeat="bond in $ctrl.bonds">
+<div class="row" ng-if="$ctrl.userData.bonds != 'undefined' || $ctrl.userData.bonds.length" ng-repeat="bond in $ctrl.userData.bonds">
 <div class="col-md-12">
   <h4 class="list-group-header">Bond ID#: {{bond.id}}</h4>
   <ul class="list-group">
@@ -10,17 +10,17 @@
         <div class="col-lg-6 fs-12"><strong>Address:</strong> {{bond.address}} <img src="public/img/clipboard.png" data-clipboard-text="{{bond.address}}" class="clipb" width="16" height="16" alt="Copy to Clipboard" /> </div>
         <div class="col-md-3 col-sm-6"><strong>Active:</strong> {{bond.active}} </div>
         <div class="col-md-3 col-sm-6"><strong>Multiplier:</strong> {{bond.multiplier}} </div>
-        <div class="col-md-6"><strong>Bond Created:</strong> Block #{{bond.created}} ({{$ctrl.blockToRelativeTime(bond.created)}} Ago)</div>
-        <div class="col-md-6 col-sm-6"><strong>Last Redemption:</strong> {{bond.lastRedemption > bond.created ? 'Block #' + bond.lastRedemption + ' (' + $ctrl.blockToRelativeTime(bond.lastRedemption) + ' Ago)' : 'Never'}} </div>
-        <div class="col-md-6 col-sm-6"><strong>Next Available Redemption:</strong> {{(bond.nextRedemption*1000) | date:"short"}}</div>
+        <div class="col-md-6"><strong>Bond Created:</strong> Block #{{bond.created}} ({{$ctrl.blockTimes[bond.created]}} Ago)</div>
+        <div class="col-md-6 col-sm-6"><strong>Last Redemption:</strong> {{bond.lastRedemption > bond.created ? 'Block #' + bond.lastRedemption + ' (' + $ctrl.blockTimes[bond.lastRedemption] + ' Ago)' : 'Never'}} </div>
+        <div class="col-md-6 col-sm-6" ng-if="bond.couponsRemaining>0"><strong>Next Redemption Available:</strong> {{(bond.nextRedemption*1000) | date:"short"}}</div>
         <div class="col-md-6 col-sm-6"><strong>Bond Matures:</strong> {{(bond.maturityTime*1000) | date:"short"}}</div>
         <div class="col-md-6 col-sm-6"><strong>Coupons Remaining:</strong> {{bond.couponsRemaining}}</div>
         <div class="col-md-12 col-sm-12 text-center m-t">
-          <button id="redeemCButton" name="redeemCButton"  class="btn btn-primary"  ng-if="(($ctrl.date.getTime()/1000) > bond.nextRedemption) && (bond.couponsRemaining>0)" ng-click="$ctrl.collect(bond.id, bond.address)" >Collect Coupon(s)</button>
-            <button id="redeemMButton" name="redeemMButton" ng-if="(($ctrl.date.getTime()/1000) > bond.maturityTime) && (bond.active)" class="btn btn-primary" ng-click="$ctrl.redeem(bond.id, bond.address)" >Redeem Bond</button>
+          <button id="redeemCButton" name="redeemCButton"  class="btn btn-primary"  ng-if="(($ctrl.date/1000) > bond.nextRedemption) && (bond.couponsRemaining>0) && bond.$state < 3" ng-click="$ctrl.collect(bond.id, bond.address)" >Collect Coupon(s)</button>
+          <button id="redeemMButton" name="redeemMButton" ng-if="(($ctrl.date/1000) > bond.maturityTime) && bond.active && bond.$state < 4" class="btn btn-primary" ng-click="$ctrl.redeem(bond.id, bond.address)" >Redeem Bond</button>
         </div>
       </div>
-      <bond-transfer bond="bond" ng-if="bond.active"></bond-transfer>
+      <bond-transfer bond="bond" ng-if="bond.active && bond.$state < 4"></bond-transfer>
     </li>
   </ul>
 </div>

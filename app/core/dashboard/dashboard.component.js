@@ -5,8 +5,7 @@
   component('dashboard', {
       controller: function(bondService) {
         var vm = this;
-        vm.accounts = bondService.getAccounts().length;
-        vm.bonds = bondService.listBonds().length;
+        vm.ebsUserData = bondService.ebsUserData;
         vm.ebsVars =  bondService.ebsVars;
         vm.transfers = 1;
       },

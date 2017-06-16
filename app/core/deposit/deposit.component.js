@@ -6,7 +6,7 @@
     templateUrl: 'core/deposit/deposit.template.html',
     controller: function(bondService, growl, $location, $routeParams) {
       var vm = this;
-      vm.account = bondService.getAccount($routeParams.account);
+      bondService.getAccount($routeParams.account).then(function(account){ vm.account = account; });
       vm.deposit = function() { 
         if(angular.isNumber(vm.depositVal) && vm.depositVal>0 && (vm.depositVal % 1 === 0) ) {
           if(parseInt(vm.depositVal,10) > parseInt(vm.account.balance,10)){
@@ -25,10 +25,7 @@
         }  
       };
     
-      vm.$onInit = function() {
-        vm.depositVal=1;
-        console.log('dposit init');
-      };
+      vm.$onInit = function() { vm.depositVal = 1; };
       
     }
   });

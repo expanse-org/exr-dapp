@@ -3,10 +3,10 @@
   angular.
   module('dashboard',[]).
   component('dashboard', {
-      controller: function(bondService) {
+      controller: function(exrService) {
         var vm = this;
-        vm.ebsUserData = bondService.ebsUserData;
-        vm.ebsVars =  bondService.ebsVars;
+        vm.exrUserData = exrService.exrUserData;
+        vm.exrVars =  exrService.exrVars;
         vm.transfers = 1;
       },
       templateUrl: 'core/dashboard/dashboard.template.html'

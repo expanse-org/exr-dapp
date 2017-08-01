@@ -3,7 +3,7 @@
   angular.
   module('connect', []).
   component('connect', {
-    controller: function(bondService, $scope, $localStorage, $window, $rootScope) {
+    controller: function(exrService, $scope, $localStorage, $window, $rootScope) {
       var vm = this;
       vm.$storage = $localStorage;
       
@@ -16,11 +16,11 @@
       };
       
       vm.connect = function() {
-        bondService.connect();
+        exrService.connect();
       };
       
       vm.launchNode = function() {
-        bondService.launchNode();
+        exrService.launchNode();
       };
       
       vm.$onInit = function() {

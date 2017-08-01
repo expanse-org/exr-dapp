@@ -1,7 +1,7 @@
 {
-  "name": "expanse-bond-dapp",
+  "name": "expanse-rewards-dapp",
   "version": "1.1.0",
-  "description": "Expanse Bond Technology Demonstration",
+  "description": "Expanse Rewards Technology Demonstration",
   "main": "main.js",
   "devDependencies": {
     "electron-prebuilt": "^1.4.13"

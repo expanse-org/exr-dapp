@@ -2,17 +2,17 @@
   <nav class="sidebar-nav">
     <div class="sidebar-header">
       <button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm"><span class="sr-only">Toggle nav</span></button>
-      <a class="sidebar-brand img-responsive" ng-href="#!/dashboard"><img src="public/img/explogo.png" align="center" /></a>
+      <a class="sidebar-brand img-responsive" ng-href="#!/dashboard"><img src="public/img/EXR_Logo.png" align="center" /></a>
     </div>
     <div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
       <ul class="nav nav-pills nav-stacked">
-        <li class="nav-header">Expanse Bond dApp</li>
+        <li class="nav-header">Expanse Rewards</li>
         <li> <a ng-href="#!/dashboard">Overview</a></li>
         <li> <a ng-href="#!/accounts">Manage Accounts</a></li>
-        <li> <a ng-href="#!/bonds">Manage Bonds</a></li>
+        <li> <a ng-href="#!/rewards">Manage Rewards</a></li>
         <!-- <li> <a ng-href="#!/settings">Settings</a></li> -->
         <li class="nav-header">Info</li>
-        <li><a ng-click="$ctrl.showSyncing()" class="f11">Current Block: {{($ctrl.ebsVars.syncCurrentBlock > $ctrl.ebsVars.currentBlock) ? $ctrl.ebsVars.syncCurrentBlock  : $ctrl.ebsVars.currentBlock}}</a></li>
+        <li><a ng-click="$ctrl.showSyncing()" class="f11">Current Block: {{($ctrl.exrVars.syncCurrentBlock > $ctrl.exrVars.currentBlock) ? $ctrl.exrVars.syncCurrentBlock  : $ctrl.exrVars.currentBlock}}</a></li>
       </ul>
       <hr class="visible-xs m-t" />
     </div>

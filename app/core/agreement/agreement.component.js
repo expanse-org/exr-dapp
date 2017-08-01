@@ -3,7 +3,7 @@
   angular.
   module('agreement', ['ngRoute']).
   component('agreement', {
-      controller: function(bondService, $scope, $localStorage) {
+      controller: function(exrService, $scope, $localStorage) {
       console.log("hasConfirmed: "+$localStorage.agreementConfirm);
         this.agree = function() {
           console.log('agree');

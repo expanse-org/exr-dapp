@@ -1,0 +1,17 @@
+<div align="center" class="m-t hr-divider"></div>
+<div class="row m-t text-center align-items-center">
+  <form class="form-horizontal m-t" novalidate>
+    <h5 class="text-center">Transfer EXR Ownership</h5>
+    <div class="form-group m-t">
+      <div class="col-xs-3 pt5 text-right">
+        <label>New Address:</label>
+      </div>
+      <div class="col-xs-6">
+        <input type="text" class="form-control" name="transferTo" ng-model="$ctrl.transferTo">
+      </div>
+      <div class="col-sm-3 text-left">
+        <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.transfer()" >Transfer EXR</button>
+      </div>
+    </div>
+  </form>
+</div>

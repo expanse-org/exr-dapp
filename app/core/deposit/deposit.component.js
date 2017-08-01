@@ -4,19 +4,19 @@
   module('deposit', []).
   component('deposit', {
     templateUrl: 'core/deposit/deposit.template.html',
-    controller: function(bondService, growl, $location, $routeParams) {
+    controller: function(exrService, growl, $location, $routeParams) {
       var vm = this;
-      bondService.getAccount($routeParams.account).then(function(account){ vm.account = account; });
+      exrService.getAccount($routeParams.account).then(function(account){ vm.account = account; });
       vm.deposit = function() { 
         if(angular.isNumber(vm.depositVal) && vm.depositVal>0 && (vm.depositVal % 1 === 0) ) {
           if(parseInt(vm.depositVal,10) > parseInt(vm.account.balance,10)){
             growl.error('Deposit value ' + vm.depositVal + ' exceeds account balance for account ' + vm.account.address+'.', {title:"Deposit Error", ttl: -1});  
           } else {
-              bondService.confirmModal(
+              exrService.confirmModal(
                 "Confirm Deposit",
-                "You are about to deposit " + vm.depositVal + " EXP to EBS Wallet for account " + vm.account.address + ".<br />Are you sure you wish to proceed?",
+                "You are about to deposit " + vm.depositVal + " EXP to EXR Wallet for account " + vm.account.address + ".<br />Are you sure you wish to proceed?",
                 function() {
-                  bondService.unlockedCall(vm.account.address, function(){ bondService.deposit(vm.account.address, vm.depositVal); });
+                  exrService.unlockedCall(vm.account.address, function(){ exrService.deposit(vm.account.address, vm.depositVal); });
                 }
               );
           }

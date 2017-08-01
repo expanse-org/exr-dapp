@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  var app = angular.module('bondApp', [
+  var app = angular.module('exrApp', [
     'ngAnimate',
     'ngRoute',
     'ngStorage',
@@ -11,11 +11,11 @@
     'accounts',
     'accountHistory',
     'accountList',
-    'bonds',
-    'bondList',
-    'bondForm',
-    'bondService',
-    'bondTransfer',
+    'rewards',
+    'exrList',
+    'exrForm',
+    'exrService',
+    'exrTransfer',
     'dashhead',
     'dashboard',
     'deposit',
@@ -33,19 +33,19 @@
       template: '<accounts></accounts>'
     }).when('/accounts/:account', {
       template: '<accounts></accounts>'
-    }).when('/bonds', {
-     template: '<bonds></bonds>'
+    }).when('/rewards', {
+     template: '<rewards></rewards>'
     }).when('/deposit/:account', {
      template: '<deposit></deposit>'
-    }).when('/bond/:account', {
-     template: '<bond-form></bond-form>'
+    }).when('/exr/:account', {
+     template: '<exr-form></exr-form>'
     }).otherwise({
       redirectTo: '/dashboard'
     });
   }]).config(['growlProvider', function(growlProvider) {
     growlProvider.onlyUniqueMessages(true);
     growlProvider.globalDisableCountDown(true);
-  }]).controller('bondAppCtrl', function ($rootScope,$scope,$localStorage,bondService) {
+  }]).controller('exrAppCtrl', function ($rootScope,$scope,$localStorage,exrService) {
     // App Initialization -- Load default values / generate objects in localStorage if they do not exist. 
     if(!$localStorage.connectionString) $localStorage.connectionString = "http://localhost:9656";
     if(!$localStorage.launchArgs) $localStorage.launchArgs = "--rpc --rpcaddr localhost"
@@ -57,10 +57,10 @@
     if(!$localStorage.lastEvent || $localStorage.lastEvent<600000) $localStorage.lastEvent=600000;
     var vm = this;
     vm.$storage=$localStorage;
-    vm.ebsVars = bondService.ebsVars;
+    vm.exrVars = exrService.exrVars;
     vm.$onInit = function () {
       console.log('-- app controll init --');
-      bondService.init();
+      exrService.init();
     };
   });
 })();

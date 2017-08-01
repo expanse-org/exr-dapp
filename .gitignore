@@ -4,8 +4,8 @@ app/backend/node_modules/
 app/gexp
 app/gexp.exe
 app/_notes/
-expanse-bond-dapp-linux-ia32/
-expanse-bond-dapp-linux-x64/
-expanse-bond-dapp-win32-ia32/
-expanse-bond-dapp-win32-x64/
-expanse-bond-dapp-darwin-x64/
+expanse-rewards-dapp-linux-ia32/
+expanse-rewards-dapp-linux-x64/
+expanse-rewards-dapp-win32-ia32/
+expanse-rewards-dapp-win32-x64/
+expanse-rewards-dapp-darwin-x64/

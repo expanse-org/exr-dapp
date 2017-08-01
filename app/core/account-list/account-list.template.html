@@ -6,17 +6,17 @@
       <div class="list-group-item slide" href="#">
         <div class="row">
           <div class="col-md-6 col-sm-12 text-center"><strong>Account Balance:</strong> {{account.balance}} EXP</div>
-          <div class="col-md-6 col-sm-12 text-center"><strong>EBS Balance:</strong> {{account.bondBalance}} EXP</div>
+          <div class="col-md-6 col-sm-12 text-center"><strong>EXR Balance:</strong> {{account.exrBalance}} EXP</div>
         </div>
-        <div ng-show="account.balance>0 || $ctrl.account.bondBalance>0" align="center" class="hr-divider" style="margin:10px;"></div>
+        <div ng-show="account.balance>0 || $ctrl.account.exrBalance >0" align="center" class="hr-divider" style="margin:10px;"></div>
         <div ng-show="account.balance>0" class="row" style="padding:15px 20px 0px;">
           <div class="col-sm-4 text-center"> <a ng-href="#!/deposit/{{account.address}}">
-            <button id="depositButton"  name="depositButton" class="btn btn-primary" ng-href="/" >Deposit to EBS</button>
+            <button id="depositButton"  name="depositButton" class="btn btn-primary" ng-href="/" >Deposit to EXR</button>
             </a></div>
-          <div class="col-sm-4 text-center" ng-show="account.bondBalance > 0 && account.$state < 3"> <a ng-href="#!/bond/{{account.address}}">
-            <button id="buyButton" name="buyButton" class="btn btn-primary" >Create New Bond</button>
+          <div class="col-sm-4 text-center" ng-show="account.exrBalance > 0 && account.$state < 3"> <a ng-href="#!/exr/{{account.address}}">
+            <button id="buyButton" name="buyButton" class="btn btn-primary" >Create New EXR</button>
             </a> </div>
-          <div class="col-sm-4 text-center" ng-show="account.bondBalance > 0 && account.$state < 3">
+          <div class="col-sm-4 text-center" ng-show="account.exrBalance > 0 && account.$state < 3">
             <button id="withdrawButton" name="withdrawButton" class="btn btn-primary" ng-click="$ctrl.withdraw(account)">Withdraw Balance</button>
           </div>
         </div>

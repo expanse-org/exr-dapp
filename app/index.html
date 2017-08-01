@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]> <html lang="en" ng-app="bondApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]> <html lang="en" ng-app="bondApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]> <html lang="en" ng-app="bondApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if lt IE 7]> <html lang="en" ng-app="exrApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html lang="en" ng-app="exrApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html lang="en" ng-app="exrApp" class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
-<html lang="en" ng-app="bondApp" class="no-js" ng-controller="bondAppCtrl as bc">
+<html lang="en" ng-app="exrApp" class="no-js" ng-controller="exrAppCtrl as bc">
 <!--<![endif]-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="expanse bond dapp">
-<meta name="keywords" content="expanse dapp bonds bond ebs smart contracts">
+<meta name="description" content="expanse rewards dapp">
+<meta name="keywords" content="expanse dapp rewards exr ebs smart contracts">
 <meta name="author" content="expanse.tech">
-<title>Expanse Bond dApp</title>
+<title>Expanse Rewards dApp</title>
 <!-- Template public CSS -->
 <link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic" rel="stylesheet">
 <link href="public/css/toolkit-inverse.css" rel="stylesheet">
@@ -27,7 +27,7 @@
 <modal></modal>
 <!-- Main App Container -->
 <div class="container">
-  <div class="row" ng-if="bc.$storage.agreementConfirm==true && bc.ebsVars.isConnected==true">
+  <div class="row" ng-if="bc.$storage.agreementConfirm==true && bc.exrVars.isConnected==true">
     <sidebar></sidebar>
     <div class="col-sm-9 content">
       <ng-view>
@@ -41,7 +41,7 @@
     <agreement></agreement>
     <footer></footer>
   </div>
-  <div class="row" ng-if="bc.ebsVars.isConnected==false">
+  <div class="row" ng-if="bc.exrVars.isConnected==false">
     <dashhead title="Connect to Expanse Node"></dashhead>
     <connect></connect>
     <footer></footer>
@@ -72,17 +72,17 @@
 <!-- The App -->
 <script src="app.js"></script>
 <!-- The Sevices -->
-<script src="services/bond.service.js"></script>
+<script src="services/exr.service.js"></script>
 <!-- The Components -->
 <script src="core/sidebar/sidebar.component.js"></script>
 <script src="core/accounts/accounts.component.js"></script>
 <script src="core/account-list/account-list.component.js"></script>
 <script src="core/account-history/account-history.component.js"></script>
 <script src="core/agreement/agreement.component.js"></script>
-<script src="core/bonds/bonds.component.js"></script>
-<script src="core/bond-list/bond-list.component.js"></script>
-<script src="core/bond-form/bond-form.component.js"></script>
-<script src="core/bond-transfer/bond-transfer.component.js"></script>
+<script src="core/rewards/rewards.component.js"></script>
+<script src="core/exr-list/exr-list.component.js"></script>
+<script src="core/exr-form/exr-form.component.js"></script>
+<script src="core/exr-transfer/exr-transfer.component.js"></script>
 <script src="core/connect/connect.component.js"></script>
 <script src="core/dashboard/dashboard.component.js"></script>
 <script src="core/dashhead/dashhead.component.js"></script>

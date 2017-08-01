@@ -1,6 +1,6 @@
-<dashhead title="Bonds"></dashhead>
+<dashhead title="Rewards"></dashhead>
 <div class="hr-divider">
-  <h3 class="hr-divider-content hr-divider-heading">Deposit to EBS</h3>
+  <h3 class="hr-divider-content hr-divider-heading">Deposit to EXR</h3>
 </div>
 <div class="row m-t list-group">
   <form name="form" class="form-horizontal" novalidate>
@@ -13,8 +13,8 @@
       <div class="col-sm-4 text-left"> {{$ctrl.account.balance}} EXP</div>
     </div>
     <div class="form-group row text-center">
-      <div class="col-xs-3 col-xs-offset-1 text-right"><strong>EBS Balance:</strong></div>
-      <div class="col-sm-4  text-left"> {{$ctrl.account.bondBalance}} EXP </div>
+      <div class="col-xs-3 col-xs-offset-1 text-right"><strong>EXR Balance:</strong></div>
+      <div class="col-sm-4  text-left"> {{$ctrl.account.exrBalance }} EXP </div>
     </div>
     <div class="row form-group text-center" ng-show="$ctrl.account.balance>0">
       <div class="col-xs-3 col-xs-offset-1 pt5 text-right">*<strong>Amount:</strong></div>
@@ -26,7 +26,7 @@
       </div>
     </div>
     <div class="form-group row m-t-md text-center">
-      <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.deposit()" >Deposit to EBS</button>
+      <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.deposit()" >Deposit to EXR</button>
     </div>
     <div class="col-md-12 fs-12 text-center"> * Deposit amounts must be whole number values, not decimals.</div>
   </form>

@@ -1,0 +1,27 @@
+<div class="row"  ng-if="$ctrl.userData.exr == 'undefined' || !$ctrl.userData.exr.length" >
+<h4 class="list-group-header pad-v-20 text-center">You have no EXR, please visit the <a ng-href="#!/accounts">accounts</a> page to create one.</h4>
+</div>
+<div class="row" ng-if="$ctrl.userData.exr != 'undefined' || $ctrl.userData.exr.length" ng-repeat="reward in $ctrl.userData.exr">
+<div class="col-md-12">
+  <h4 class="list-group-header">EXR ID#: {{reward.id}}</h4>
+  <ul class="list-group">
+    <li class="list-group-item slide" style="padding:20px;">
+      <div class="row">
+        <div class="col-lg-6 fs-12"><strong>Address:</strong> {{reward.address}} <img src="public/img/clipboard.png" data-clipboard-text="{{reward.address}}" class="clipb" width="16" height="16" alt="Copy to Clipboard" /> </div>
+        <div class="col-md-3 col-sm-6"><strong>Active:</strong> {{reward.active}} </div>
+        <div class="col-md-3 col-sm-6"><strong>Multiplier:</strong> {{reward.multiplier}} </div>
+        <div class="col-md-6"><strong>EXR Created:</strong> Block #{{reward.created}} ({{$ctrl.blockTimes[reward.created]}} Ago)</div>
+        <div class="col-md-6 col-sm-6"><strong>Last Redemption:</strong> {{reward.lastRedemption > reward.created ? 'Block #' + reward.lastRedemption + ' (' + $ctrl.blockTimes[reward.lastRedemption] + ' Ago)' : 'Never'}} </div>
+        <div class="col-md-6 col-sm-6" ng-if="reward.rewardsRemaining>0"><strong>Next Redemption Available:</strong> {{(reward.nextRedemption*1000) | date:"short"}}</div>
+        <div class="col-md-6 col-sm-6"><strong>EXR Matures:</strong> {{(reward.maturityTime*1000) | date:"short"}}</div>
+        <div class="col-md-6 col-sm-6"><strong>Redemptions Remaining:</strong> {{reward.rewardsRemaining}}</div>
+        <div class="col-md-12 col-sm-12 text-center m-t">
+          <button id="redeemCButton" name="redeemCButton"  class="btn btn-primary"  ng-if="(($ctrl.date/1000) > reward.nextRedemption) && (reward.rewardsRemaining>0) && reward.$state < 3" ng-click="$ctrl.collect(reward.id, reward.address)" >Collect Rewards(s)</button>
+          <button id="redeemMButton" name="redeemMButton" ng-if="(($ctrl.date/1000) > reward.maturityTime) && reward.active && reward.$state < 4" class="btn btn-primary" ng-click="$ctrl.redeem(reward.id, reward.address)" >Redeem EXR</button>
+        </div>
+      </div>
+      <exr-transfer exr="reward" ng-if="reward.active && reward.$state < 4"></exr-transfer>
+    </li>
+  </ul>
+</div>
+</div>

@@ -4,9 +4,9 @@
   module('syncmodal', []).
   component('syncmodal', {
     templateUrl: 'core/syncmodal/syncmodal.template.html',
-    controller: function (bondService) {
+    controller: function (exrService) {
       var vm = this;
-      vm.ebsVars = bondService.ebsVars;
+      vm.exrVars = exrService.exrVars;
     }
   });
 })();

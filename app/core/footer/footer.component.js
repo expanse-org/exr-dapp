@@ -4,9 +4,9 @@
   module('footer', []).
   component('footer', {
     templateUrl: 'core/footer/footer.template.html',
-    controller: function(bondService) {
+    controller: function(exrService) {
       var vm = this;
-      vm.version = bondService.ebsVars.version;
+      vm.version = exrService.exrVars.version;
     }
   });
 })();

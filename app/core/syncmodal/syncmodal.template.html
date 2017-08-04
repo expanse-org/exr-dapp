@@ -2,9 +2,9 @@
   <div class="modal-dialog" role="document">
     <div class="codepre col-md-12 text-center"><span class="close closex" data-dismiss="modal" onClick="" aria-label="Close"> [x]</span> <span class="text-warning">Warning: </span>Node is currently syncing.<br />
       Your node is not yet up to date and is currently syncing with the expanse blockchain. Please wait for it to finish syncing as the information reflected in this dApp may not be accurate until synchronization is complete.<br />
-      Progress: {{(($ctrl.ebsVars.syncCurrentBlock*100)/$ctrl.ebsVars.syncHighestBlock).toFixed(2)}}% ({{$ctrl.ebsVars.syncCurrentBlock}} Blocks)
-      Blocks Remaining: {{$ctrl.ebsVars.syncHighestBlock-$ctrl.ebsVars.syncCurrentBlock}} of {{$ctrl.ebsVars.syncHighestBlock}}
-      Estimated Time Remaining: {{$ctrl.ebsVars.syncTimeLeft}}.
-      Spent {{$ctrl.ebsVars.syncTimeSpent}} parsing {{$ctrl.ebsVars.syncCount}} blocks. </div>
+      Progress: {{(($ctrl.exrVars.syncCurrentBlock*100)/$ctrl.exrVars.syncHighestBlock).toFixed(2)}}% ({{$ctrl.exrVars.syncCurrentBlock}} Blocks)
+      Blocks Remaining: {{$ctrl.exrVars.syncHighestBlock-$ctrl.exrVars.syncCurrentBlock}} of {{$ctrl.exrVars.syncHighestBlock}}
+      Estimated Time Remaining: {{$ctrl.exrVars.syncTimeLeft}}.
+      Spent {{$ctrl.exrVars.syncTimeSpent}} parsing {{$ctrl.exrVars.syncCount}} blocks. </div>
   </div>
 </div>

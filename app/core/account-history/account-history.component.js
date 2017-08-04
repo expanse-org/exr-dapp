@@ -5,7 +5,7 @@
   component('accountHistory', {
     bindings: { account: '<' },
     templateUrl: 'core/account-history/account-history.template.html',
-    controller: function(bondService, $localStorage) {
+    controller: function(exrService, $localStorage) {
       var vm = this;
       vm.history = $localStorage.history;
       vm.pending = $localStorage.pending;

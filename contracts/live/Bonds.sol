@@ -28,11 +28,11 @@ contract EBS {
   EBSBeta ebsBetaContract = EBSBeta(0x88ACBc37b80Ea9f7692BaF3eb2390c8a34F02457);
   EBSBlockTime blockTime = EBSBlockTime(0x0f079dBC5DA4C5f5cb3F2b8F66C74AB2866aba2f);
   
-  event Buys(address indexed User, uint indexed BondId, uint Multiplier, uint MaturityTime);
+  event Buys(address indexed User, uint indexed exrId, uint Multiplier, uint MaturityTime);
   event Deposits(address indexed Sender, uint Amount);
-  event RedeemCoupons(address indexed User, uint indexed BondId, uint Coupons, uint Amount);
-  event RedeemBonds(address indexed User, uint indexed BondId, uint Amount);
-  event Transfers(address indexed TransferFrom, address indexed TransferTo, uint indexed BondId);
+  event RedeemCoupons(address indexed User, uint indexed exrId, uint Coupons, uint Amount);
+  event RedeemBonds(address indexed User, uint indexed exrId, uint Amount);
+  event Transfers(address indexed TransferFrom, address indexed TransferTo, uint indexed exrId);
   event Withdraws(uint Amount, address indexed User);
 
   struct sBond {
@@ -63,7 +63,7 @@ contract EBS {
   mapping(address=>sUser) public users;
   mapping(uint=>sBond) public bonds;
 
-  modifier mustOwnBond(uint _bondid){ if(bonds[_bondid].owner != msg.sender) throw; _; }
+  modifier mustOwnBond(uint _exrId){ if(bonds[_exrId].owner != msg.sender) throw; _; }
   modifier mustBeOwner(){ if(owner != msg.sender) throw; _; }
    
   function EBS() payable { owner = msg.sender; }
@@ -91,23 +91,23 @@ contract EBS {
     return true;
   }
   
-  function transfer(uint _bondid, address _to) mustOwnBond(_bondid) returns(bool){
+  function transfer(uint _exrId, address _to) mustOwnBond(_exrId) returns(bool){
     uint bIndex;
     for(uint i=0; i<users[msg.sender].bonds.length; i++){
-      if(users[msg.sender].bonds[i] == _bondid){
+      if(users[msg.sender].bonds[i] == _exrId){
         bIndex=i;
         break;
       }
     }
     delete users[msg.sender].bonds[bIndex];
-    bonds[_bondid].owner = _to;
-    users[_to].bonds.push(_bondid);
+    bonds[_exrId].owner = _to;
+    users[_to].bonds.push(_exrId);
     if(users[_to].exists!=true) users[_to].exists=true;
-    Transfers(msg.sender, _to, _bondid);
+    Transfers(msg.sender, _to, _exrId);
     return true;
   }
   
-  function buy(uint _multiplier) returns(uint bondId){
+  function buy(uint _multiplier) returns(uint exrId){
     if(_multiplier < 1) _multiplier = 1;
     if(_multiplier > limitBonds-totalBonds) throw;
     uint cost = price * _multiplier;
@@ -115,53 +115,53 @@ contract EBS {
     users[msg.sender].balance -= cost;
 
     nBonds++;
-    bondId = nBonds;
+    exrId = nBonds;
     totalBonds+=_multiplier;
     activeBonds+=_multiplier;
 
-    bonds[bondId].active = true;
-    bonds[bondId].owner = msg.sender;
-    bonds[bondId].multiplier = _multiplier;
-    bonds[bondId].maturityTime = block.timestamp + maturity;
-	bonds[bondId].created = block.number;
-    bonds[bondId].lastRedemption = block.number;
-    bonds[bondId].nextRedemption = block.timestamp + period;
-    bonds[bondId].couponsRemaining = maxCoupons;
+    bonds[exrId].active = true;
+    bonds[exrId].owner = msg.sender;
+    bonds[exrId].multiplier = _multiplier;
+    bonds[exrId].maturityTime = block.timestamp + maturity;
+	bonds[exrId].created = block.number;
+    bonds[exrId].lastRedemption = block.number;
+    bonds[exrId].nextRedemption = block.timestamp + period;
+    bonds[exrId].couponsRemaining = maxCoupons;
 
-    users[msg.sender].bonds.push(bondId);
-    Buys(msg.sender, bondId, bonds[bondId].multiplier, bonds[bondId].maturityTime);
+    users[msg.sender].bonds.push(exrId);
+    Buys(msg.sender, exrId, bonds[exrId].multiplier, bonds[exrId].maturityTime);
   }
   
-  function redeemCoupon(uint _bondid) mustOwnBond(_bondid) returns(bool, uint, uint){
-    if(bonds[_bondid].couponsRemaining < 1) throw;
-    if(bonds[_bondid].nextRedemption > block.timestamp) throw;
-    uint timePassed = block.timestamp - (bonds[_bondid].nextRedemption-period);
+  function redeemCoupon(uint _exrId) mustOwnBond(_exrId) returns(bool, uint, uint){
+    if(bonds[_exrId].couponsRemaining < 1) throw;
+    if(bonds[_exrId].nextRedemption > block.timestamp) throw;
+    uint timePassed = block.timestamp - (bonds[_exrId].nextRedemption-period);
     if(timePassed < period) throw;
     uint remainder = timePassed % period;
     uint timePassedCorrected = timePassed - remainder;
     uint periods = timePassedCorrected / period;
-    if(bonds[_bondid].couponsRemaining < periods) periods=bonds[_bondid].couponsRemaining;
+    if(bonds[_exrId].couponsRemaining < periods) periods=bonds[_exrId].couponsRemaining;
 
-    bonds[_bondid].nextRedemption += period*periods;
-    bonds[_bondid].couponsRemaining -= periods;
-    bonds[_bondid].lastRedemption = block.number;
+    bonds[_exrId].nextRedemption += period*periods;
+    bonds[_exrId].couponsRemaining -= periods;
+    bonds[_exrId].lastRedemption = block.number;
     
-    uint amount = (bonds[_bondid].multiplier * periods)*coupon;
-    bonds[_bondid].redemptionHistory.push(sHistory(block.number, amount, block.timestamp));
+    uint amount = (bonds[_exrId].multiplier * periods)*coupon;
+    bonds[_exrId].redemptionHistory.push(sHistory(block.number, amount, block.timestamp));
     users[msg.sender].balance += amount;
-    RedeemCoupons(msg.sender, _bondid, periods, amount);
+    RedeemCoupons(msg.sender, _exrId, periods, amount);
     return (true, periods, amount);
   }
 
-  function redeemBond(uint _bondid) mustOwnBond(_bondid) returns(bool){
-    if(bonds[_bondid].active != true) throw;
-    if(block.timestamp < bonds[_bondid].maturityTime) throw;
-    if(bonds[_bondid].couponsRemaining>0) redeemCoupon(_bondid);
-    bonds[_bondid].active = false;
-    uint amount = price * bonds[_bondid].multiplier;
+  function redeemBond(uint _exrId) mustOwnBond(_exrId) returns(bool){
+    if(bonds[_exrId].active != true) throw;
+    if(block.timestamp < bonds[_exrId].maturityTime) throw;
+    if(bonds[_exrId].couponsRemaining>0) redeemCoupon(_exrId);
+    bonds[_exrId].active = false;
+    uint amount = price * bonds[_exrId].multiplier;
     users[msg.sender].balance += amount;
-    activeBonds -= bonds[_bondid].multiplier;
-    RedeemBonds(msg.sender, _bondid, amount);
+    activeBonds -= bonds[_exrId].multiplier;
+    RedeemBonds(msg.sender, _exrId, amount);
     return true;
   }
 
@@ -169,15 +169,15 @@ contract EBS {
 
   function getBalance(address _user) constant returns(uint){ return users[_user].balance; }
 
-  function getBond(uint _bondid) constant returns(bool active, address owner, uint multiplier, uint maturityTime, uint lastRedemption, uint nextRedemption, uint created, uint couponsRemaining){
-    active = bonds[_bondid].active;
-    owner = bonds[_bondid].owner;
-    multiplier = bonds[_bondid].multiplier;
-    maturityTime = bonds[_bondid].maturityTime;
-    lastRedemption = bonds[_bondid].lastRedemption;
-    nextRedemption = bonds[_bondid].nextRedemption;
-    created = bonds[_bondid].created;
-    couponsRemaining = bonds[_bondid].couponsRemaining;
+  function getBond(uint _exrId) constant returns(bool active, address owner, uint multiplier, uint maturityTime, uint lastRedemption, uint nextRedemption, uint created, uint couponsRemaining){
+    active = bonds[_exrId].active;
+    owner = bonds[_exrId].owner;
+    multiplier = bonds[_exrId].multiplier;
+    maturityTime = bonds[_exrId].maturityTime;
+    lastRedemption = bonds[_exrId].lastRedemption;
+    nextRedemption = bonds[_exrId].nextRedemption;
+    created = bonds[_exrId].created;
+    couponsRemaining = bonds[_exrId].couponsRemaining;
   }
   
   function getUser(address _addr) constant returns(bool exists, uint balance, uint[] bonds){
@@ -186,11 +186,11 @@ contract EBS {
     bonds = users[_addr].bonds;
   }
 
-  function getBondHistoryLength(uint _bondid) constant returns(uint){ return bonds[_bondid].redemptionHistory.length; }
+  function getBondHistoryLength(uint _exrId) constant returns(uint){ return bonds[_exrId].redemptionHistory.length; }
 
-  function getBondHistory(uint _bondid, uint _index) constant returns(uint block, uint amount){
-    block = bonds[_bondid].redemptionHistory[_index].block;
-    amount = bonds[_bondid].redemptionHistory[_index].amount;
+  function getBondHistory(uint _exrId, uint _index) constant returns(uint block, uint amount){
+    block = bonds[_exrId].redemptionHistory[_index].block;
+    amount = bonds[_exrId].redemptionHistory[_index].amount;
   }
   
   /* Administration Functions */

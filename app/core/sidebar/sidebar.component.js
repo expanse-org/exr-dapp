@@ -4,12 +4,12 @@
   module('sidebar', []).
   component('sidebar', {
     templateUrl: 'core/sidebar/sidebar.template.html',
-    controller: function (bondService, $localStorage) {
+    controller: function (exrService, $localStorage) {
       var vm = this;
-      vm.ebsVars = bondService.ebsVars;
+      vm.exrVars = exrService.exrVars;
       vm.pending = $localStorage.pending;
       vm.showSyncing = function () {
-        if(vm.ebsVars.isSyncing===true){
+        if(vm.exrVars.isSyncing===true){
          $('#syncModal').modal({"backdrop": "static"});
         }
       };

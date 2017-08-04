@@ -1,8 +1,8 @@
-<dashhead title="Bonds"></dashhead>
+<dashhead title="Rewards"></dashhead>
 <div class="hr-divider">
-  <h3 class="hr-divider-content hr-divider-heading">Create New Bond</h3>
+  <h3 class="hr-divider-content hr-divider-heading">Create New EXR</h3>
 </div>
-<div ng-show="$ctrl.ebsVars.bondsAvail>0" class="row m-t list-group">
+<div ng-show="$ctrl.exrVars.exrAvail>0" class="row m-t list-group">
   <form name="form" class="form-horizontal" novalidate>
     <div class="form-group row">
       <label class="col-xs-3 col-sm-4 col-sm-offset-0 col-xs-offset-1 control-label" for="multiplier">Address:</label>
@@ -13,15 +13,15 @@
       <div class="col-xs-2" style="padding-right:0px;">
         <input class="form-control" type="text" name="multiplier" id="multiplier" ng-model="$ctrl.multiplier" />
       </div>
-      <div class="col-xs-4" style="margin:7px 0px;"> x {{$ctrl.ebsVars.price}} EXP</div>
+      <div class="col-xs-4" style="margin:7px 0px;"> x {{$ctrl.exrVars.price}} EXP</div>
     </div>
     <div class="form-group m-t-md text-center">
-      <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.buyBond()" >Create Bond</button>
+      <button id="submit" name="submit" class="btn btn-primary" ng-click="$ctrl.buyEXR()" >Create EXR</button>
     </div>
   </form>
 </div>
-<div ng-show="$ctrl.ebsVars.bondsAvail==0" class="row m-t list-group">
+<div ng-show="$ctrl.exrVars.exrAvail==0" class="row m-t list-group">
   <form name="form" class="form-horizontal" novalidate>
-     <div class="col-sm-12 text-center">There are currently no new bonds available.<br />Please check back at a later time.</div>
+     <div class="col-sm-12 text-center">There are currently no new EXR available.<br />Please check back at a later time.</div>
   </form>
 </div>

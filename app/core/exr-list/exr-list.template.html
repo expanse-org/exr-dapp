@@ -16,7 +16,7 @@
         <div class="col-md-6 col-sm-6"><strong>EXR Matures:</strong> {{(reward.maturityTime*1000) | date:"short"}}</div>
         <div class="col-md-6 col-sm-6"><strong>Redemptions Remaining:</strong> {{reward.rewardsRemaining}}</div>
         <div class="col-md-12 col-sm-12 text-center m-t">
-          <button id="redeemCButton" name="redeemCButton"  class="btn btn-primary"  ng-if="(($ctrl.date/1000) > reward.nextRedemption) && (reward.couponsRemaining>0) && reward.$state < 3" ng-click="$ctrl.collect(reward.id, reward.address)" >Collect Rewards(s)</button>
+          <button id="redeemCButton" name="redeemCButton"  class="btn btn-primary"  ng-if="(($ctrl.date/1000) > reward.nextRedemption) && (reward.rewardsRemaining>0) && reward.$state < 3" ng-click="$ctrl.collect(reward.id, reward.address)" >Collect Rewards(s)</button>
           <button id="redeemMButton" name="redeemMButton" ng-if="(($ctrl.date/1000) > reward.maturityTime) && reward.active && reward.$state < 4" class="btn btn-primary" ng-click="$ctrl.redeem(reward.id, reward.address)" >Redeem EXR</button>
         </div>
       </div>

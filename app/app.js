@@ -59,7 +59,6 @@
     vm.$storage=$localStorage;
     vm.exrVars = exrService.exrVars;
     vm.$onInit = function () {
-      console.log('-- app controll init --');
       exrService.init();
     };
   });

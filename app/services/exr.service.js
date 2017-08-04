@@ -182,7 +182,7 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
           if(error) { reject(error); } else { resolve(result); }
         } else {
           refreshAccounts().then(function() { return refreshEXR(); })
-          .then(function(bonds) {  return getBlockNumber(); })
+          .then(function(exr) {  return getBlockNumber(); })
           .then(function(blockNum) { exrVars.currentBlock = blockNum; return getBalance(Contract.address); })
           .then(function(balance) { 
             exrVars.exrBal = web3.fromWei(balance);
@@ -384,11 +384,11 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
 
 	var fetchEXR = function(exrId) {
     return $q(function(resolve, reject) {
-		  exrContract.getBond.call(exrId, function(error, bondData) {
+		  exrContract.getBond.call(exrId, function(error, exrData) {
         if(error) { 
           reject(error);
         } else {
-		      resolve({id: exrId, active: bondData[0], address: bondData[1], multiplier: bondData[2].c[0], maturityTime: bondData[3].c[0], lastRedemption:bondData[4].c[0], nextRedemption:bondData[5].c[0], created:bondData[6].c[0], rewardsRemaining:bondData[7].c[0], $state:1});
+		      resolve({id: exrId, active: exrData[0], address: exrData[1], multiplier: exrData[2].c[0], maturityTime: exrData[3].c[0], lastRedemption:exrData[4].c[0], nextRedemption:exrData[5].c[0], created:exrData[6].c[0], rewardsRemaining:exrData[7].c[0], $state:1});
         }
       });
     });
@@ -469,11 +469,11 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
 				growl.info('Redeeming mature redemptions for EXR ID: ' + exrId + ' owned by account: ' + address + ". Please be patient as it may take several minutes to be included in a block.", {title:"Coupon Redemption", ttl: -1});
 				console.log('Reward Redeem TX ID:' + result);
 				growl.warning('REward Redeem TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
-        fetchEXR(exrId).then(function(xBond) {
-          var timePassed = Math.floor(Date.now() / 1000) - (xBond.nextRedemption - exrVars.period);
+        fetchEXR(exrId).then(function(xEXR) {
+          var timePassed = Math.floor(Date.now() / 1000) - (xEXR.nextRedemption - exrVars.period);
           var periods = (timePassed - (timePassed % exrVars.period)) / exrVars.period;
-          if(xBond.rewardsRemaining < periods) periods = xBond.rewardsRemaining;
-          var amount = (xBond.multiplier * periods) * exrVars.coupon;
+          if(xEXR.rewardsRemaining < periods) periods = xEXR.rewardsRemaining;
+          var amount = (xEXR.multiplier * periods) * exrVars.coupon;
           addPendingHistory(address, "Interest Redemption", "EXR ID: " + exrId + " - Redemptions: " + periods + " - Amount: " + (periods*exrVars.price) + " EXP", result, exrId);
         });
 			}
@@ -492,8 +492,8 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
 				growl.info('Redeeming mature EXR ID: ' + exrId + ' owned by account:' + address + ". Please be patient as it may take several minutes to be included in a block.", {title:"EXR Redemption", ttl: -1});
 				console.log('Redeem TX ID:' + result);
 				growl.warning('Redeem TX ID: ' + result + '<img src="public/img/clipboard.png" data-clipboard-text="' + result + '" class="clipb" width="16" height="16" />', {ttl: -1});
-        fetchEXR(exrId).then(function(xBond) {
-          addPendingHistory(address, "EXR Redemption", "EXR ID: " + exrId + " - Amount: " + (xBond.multiplier*exrVars.price) + " EXP", result, exrId);
+        fetchEXR(exrId).then(function(xEXR) {
+          addPendingHistory(address, "EXR Redemption", "EXR ID: " + exrId + " - Amount: " + (xEXR.multiplier*exrVars.price) + " EXP", result, exrId);
         });
 			}
 		});
@@ -734,27 +734,27 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
         var xObj = {};
         var xGrowl = {};
         xObj.block = result.blockNumber;
-        if (typeof(result.args.bondId) != "undefined") xObj.exrId=result.args.exrId;
+        if (typeof(result.args.exrId) != "undefined") xObj.exrId=result.args.exrId;
         blockToTimestamp(result.blockNumber).then(function(blockTime){
           xObj.blockTime = blockTime;
           switch(result.event){
             case "Buys":
               xObj.address = result.args.User;
-              xObj.info = "EXR ID: " + result.args.bondId + " - Multiplier: " + result.args.Multiplier;
+              xObj.info = "EXR ID: " + result.args.exrId + " - Multiplier: " + result.args.Multiplier;
               xObj.type = "EXR Purchase";
               xGrowl.message="Your EXR purchased has been successfully recorded on the blockchain.";
               xGrowl.title = "EXR Purchase";
             break;
             case "RedeemCoupons":
               xObj.address = result.args.User;
-              xObj.info = "EXR ID: "+result.args.bondId + " - Redemptions: "+result.args.Coupons+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+              xObj.info = "EXR ID: "+result.args.exrId + " - Redemptions: "+result.args.Coupons+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
               xObj.type = "Interest Redemption";
               xGrowl.message = "Your coupon(s) has been redeemed.";
               xGrowl.title = "Coupon Redemption";
             break;
             case "RedeemEXR":
               xObj.address = result.args.User;
-              xObj.info = "EXR ID: "+result.args.bondId+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
+              xObj.info = "EXR ID: "+result.args.exrId+" - Amount: " + web3.fromWei(result.args.Amount) + " EXP";
               xObj.type = "EXR Redemption";
               xGrowl.message = "Your EXR has been redeemed.";
               xGrowl.title = "EXR Redemption";
@@ -768,10 +768,10 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
             break;
             case "Transfers": 
               var userIsFrom = false;
-              $.each(exrUserData.exr, function(index,value){ if(value.id == result.args.bondId) { value.$state = 1; } });
+              $.each(exrUserData.exr, function(index,value){ if(value.id == result.args.exrId) { value.$state = 1; } });
               if(addressList.indexOf(result.args.TransferFrom) > -1) {
                 xObj.address = result.args.TransferFrom;
-                xObj.info = "EXR ID: " + result.args.bondId + " - Transferred to " + result.args.TransferTo.substring(0,16) + "...";
+                xObj.info = "EXR ID: " + result.args.exrId + " - Transferred to " + result.args.TransferTo.substring(0,16) + "...";
                 xObj.type = "EXR Transfer Sent";
                 userIsFrom = true;
               } 
@@ -784,7 +784,7 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
                   if($localStorage.pending[xObj.address]) $localStorage.pending[xObj.address] = $.grep($localStorage.pending[xObj.address], function( elm, indx ) { return elm.tx == result.transactionHash; }, true);
                 } 
                 xObj.address = result.args.TransferTo;
-                xObj.info = "EXR ID: " + result.args.bondId + " - Transferred from " + result.args.TransferFrom.substring(0,16) + "...";
+                xObj.info = "EXR ID: " + result.args.exrId + " - Transferred from " + result.args.TransferFrom.substring(0,16) + "...";
                 xObj.type = "EXR Transfer Recv";
               }
               xGrowl.message = "Your transfer is complete and has been recorded on the blockchain."; 

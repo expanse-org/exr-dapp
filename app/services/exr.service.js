@@ -459,7 +459,7 @@ factory('exrService', function(growl, $localStorage, $rootScope, $location, $tim
 	
 	var collect = function(exrId, address){
 		console.log('Redeeming mature balance for EXR ID: ' + exrId + ' owned by account: ' + address);
-		exrContract.redeemReward.sendTransaction(exrId, {from: address, gas:400000}, function(err, result){ 
+		exrContract.redeemCoupon.sendTransaction(exrId, {from: address, gas:400000}, function(err, result){ 
 			if(err) {
 				console.log('Redeem Reward Error: ' + err);
 				growl.error(err.message, {title:"Reward Redemption Error", ttl: -1}); 

@@ -1,6 +1,9 @@
 # Expanse Rewards
 hold exp, earn exp.
 
+## GUI Download
+[https://github.com/expanse-org/exr-dapp/releases](download release binaries)
+
 [![Stories in Ready](https://badge.waffle.io/expanse-org/bond-dapp.png?label=ready&title=Ready)](http://waffle.io/expanse-org/bond-dapp)
 
 ![](https://github.com/expanse-org/exr-dapp/raw/master/app/public/img/EXR_Logo.png)

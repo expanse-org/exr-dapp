@@ -2,7 +2,8 @@
 hold exp, earn exp.
 
 ## GUI Download
-[https://github.com/expanse-org/exr-dapp/releases](download release binaries)
+[https://github.com/expanse-org/exr-dapp/releases]
+(https://github.com/expanse-org/exr-dapp/releases)
 
 [![Stories in Ready](https://badge.waffle.io/expanse-org/bond-dapp.png?label=ready&title=Ready)](http://waffle.io/expanse-org/bond-dapp)
 

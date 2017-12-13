@@ -1,6 +1,6 @@
 {
   "name": "expanse-rewards-dapp",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Expanse Rewards Technology Demonstration",
   "main": "main.js",
   "devDependencies": {
